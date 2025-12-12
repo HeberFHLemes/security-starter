@@ -1,25 +1,30 @@
-# security-starter
+# Security Starter
 
-Project to help developers of Spring Boot applications to configure Spring Security configuration.
+A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication.
 
-In this first version, the goal is to abstract JWT authentication logic.
-
----
-
-### Requirements
-- Spring Boot 4.x version
-- Spring Security
-- Spring Web
-- Do not expose user password :)
+This library is designed to **abstract JWT authentication logic**, while keeping your application modular and decoupled from infrastructure.
 
 ---
 
-### Installation
-In your project's `pom.xml` (if using Maven):
+## Requirements
+
+- Spring Boot 4.x
+- Spring Security (`spring-boot-starter-security`)
+- Spring Web (`spring-boot-starter-web`)
+- Do not expose user passwords :)
+
+> **Note:** The starter relies on Spring Security and a runtime implementation of the Jakarta Servlet API (usually included via Spring Web).
+
+---
+
+## Installation
+
+Add the dependency to your `pom.xml`:
+
 ```xml
 <dependency>
   <groupId>io.github.heberfhlemes</groupId>
-  <artifactId>security-starter</artifactIf>
+  <artifactId>security-starter</artifactId>
   <version>1.0.0</version>
 </dependency>
 ```
@@ -27,20 +32,73 @@ In your project's `pom.xml` (if using Maven):
 ---
 
 ### Configuration
-In your project's `application.properties` (or YAML), set the JWT secret
-value and jwt expiration value.
 
-Then, implement the interface `UserDetailsService`, configure your security configuration
-(its routes policies, etc.) implementing the interface `SecurityConfigurer`, and use
-`AuthService` in your controller class to validate or generate tokens.
+#### JWT Properties
+In your `application.properties` or `application.yml`:
+```yaml
+jwt:
+  secret: your-secret-key
+  expiration: 720000 # in ms
+```
 
-It is that simple!
+#### SecurityConfigurer
+This is entirely optional, but you can extend `SecurityConfigurer` to define route authorization policies 
+while already having some common logic in your security configuration class.
+
+```java
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
+@Configuration
+@EnableWebSecurity
+public class AppSecurityConfig extends SecurityConfigurer {
+
+    @Override
+    protected void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>
+                                                      .AuthorizationManagerRequestMatcherRegistry auth) {
+        auth
+                .requestMatchers("/public/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
+        configureCommonSecurity(http, jwtFilter); // from SecurityConfigurer class
+        configureAuthorization(http.authorizeHttpRequests());
+        return http.build();
+    }
+}
+```
+
+#### Using JwtAuthenticationService
+Generate and validate tokens in your controllers or services:
+
+```java
+@Autowired
+private JwtAuthenticationService jwtAuthService;
+
+String token = jwtAuthService.generateToken(userDetails);
+boolean valid = jwtAuthService.validateToken(token, userDetails.getUsername());
+```
+
+---
+
+### Overriding Beans
+All core beans are `@ConditionalOnMissingBean`, so you can provide your own implementations:
+
+- `PasswordEncoder`
+- `AuthenticationProvider`
+- `AuthenticationManager`
+- `JwtService`
+- `JwtAuthenticationFilter`
+- `JwtAuthenticationService`
 
 ---
 
 ### License
 
-This project is licensed under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0.html)
+This project is licensed under [Apache License, Version 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 See [LICENSE](LICENSE) file for details.
 
