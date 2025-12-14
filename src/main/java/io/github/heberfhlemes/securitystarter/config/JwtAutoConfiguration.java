@@ -3,8 +3,8 @@ package io.github.heberfhlemes.securitystarter.config;
 import io.github.heberfhlemes.securitystarter.application.JwtAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties;
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtService;
 
+import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,7 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * <p>This configuration provides:</p>
  * <ul>
- *   <li>{@code JwtService} — utilities for creating and validating JWT tokens.</li>
+ *   <li>{@code JwtTokenProvider} — utilities for creating and validating JWT tokens.</li>
  *   <li>{@code JwtAuthenticationFilter} — a stateless authentication filter that
  *       extracts and validates tokens on incoming requests.</li>
  *   <li>Properties mapping for secret keys, expiration time, and algorithm.</li>
@@ -61,17 +61,17 @@ import org.springframework.security.web.SecurityFilterChain;
 public class JwtAutoConfiguration {
 
     /**
-     * Creates a default {@link JwtService} using the configured {@link JwtProperties}.
+     * Creates a default {@link JwtTokenProvider} using the configured {@link JwtProperties}.
      * <p>
      * Applications may override this bean to customize token generation or validation.
      *
      * @param properties the JWT-related configuration properties
-     * @return a configured {@link JwtService} instance
+     * @return a configured {@link JwtTokenProvider} instance
      */
     @Bean
     @ConditionalOnMissingBean
-    public JwtService jwtService(JwtProperties properties) {
-        return new JwtService(properties);
+    public JwtTokenProvider jwtTokenProvider(JwtProperties properties) {
+        return new JwtTokenProvider(properties);
     }
 
     /**
@@ -81,16 +81,16 @@ public class JwtAutoConfiguration {
      * Applications may override this bean to customize authentication logic or
      * filter ordering.
      *
-     * @param jwtService          the JWT service used for token validation
+     * @param jwtTokenProvider          the JWT service used for token validation
      * @param userDetailsService  the user details service used for authentication lookup
      * @return the default {@link JwtAuthenticationFilter}
      */
     @Bean
     @ConditionalOnMissingBean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtService jwtService,
+            JwtTokenProvider jwtTokenProvider,
             UserDetailsService userDetailsService) {
-        return new JwtAuthenticationFilter(jwtService, userDetailsService);
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
     }
 
     /**
@@ -99,13 +99,13 @@ public class JwtAutoConfiguration {
      * Applications may override this bean to customize authentication flows such as
      * login or token refresh.
      *
-     * @param jwtService the JWT service used to generate authentication tokens
+     * @param jwtTokenProvider the JWT service used to generate authentication tokens
      * @return a default {@link JwtAuthenticationService}
      */
     @Bean
     @ConditionalOnMissingBean
-    public JwtAuthenticationService jwtAuthenticationService(JwtService jwtService) {
-        return new JwtAuthenticationService(jwtService);
+    public JwtAuthenticationService jwtAuthenticationService(JwtTokenProvider jwtTokenProvider) {
+        return new JwtAuthenticationService(jwtTokenProvider);
     }
 
 }

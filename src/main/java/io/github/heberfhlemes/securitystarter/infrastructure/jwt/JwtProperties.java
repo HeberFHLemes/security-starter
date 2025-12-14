@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 /**
  * Configuration properties for JWT.
@@ -17,7 +18,7 @@ public class JwtProperties {
     private String secret;
 
     // DEFAULT = 12 min
-    private long expiration = 720000;
+    private Duration expiration = Duration.ofMillis(720000);
 
     public String getSecret() {
         return secret;
@@ -27,11 +28,11 @@ public class JwtProperties {
         this.secret = secret;
     }
 
-    public long getExpiration() {
+    public Duration getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(long expiration) {
+    public void setExpiration(Duration expiration) {
         this.expiration = expiration;
     }
 

@@ -3,7 +3,7 @@
  *
  * <p>This includes:</p>
  * <ul>
- *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtService} — responsible for generating and validating tokens.</li>
+ *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider} — responsible for generating and validating tokens.</li>
  *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties} — configuration properties such as secret, expiration,
  *         and algorithm.</li>
  * </ul>

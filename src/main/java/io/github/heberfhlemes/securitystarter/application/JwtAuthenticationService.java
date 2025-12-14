@@ -1,11 +1,11 @@
 package io.github.heberfhlemes.securitystarter.application;
 
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtService;
+import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Application-level service that provides a simplified interface for generating
- * and validating JWT tokens on top of the lower-level {@link JwtService}.
+ * and validating JWT tokens on top of the lower-level {@link JwtTokenProvider}.
  *
  * <p>This service does <strong>not</strong> authenticate users. It assumes that the
  * application has already verified user credentials and simply needs to issue
@@ -19,15 +19,15 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public final class JwtAuthenticationService {
 
-    private final JwtService jwtService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * Creates a new {@code JwtAuthenticationService} with the given {@link JwtService}.
+     * Creates a new {@code JwtAuthenticationService} with the given {@link JwtTokenProvider}.
      *
-     * @param jwtService the underlying JWT service used for token operations
+     * @param jwtTokenProvider the underlying JWT service used for token operations
      */
-    public JwtAuthenticationService(JwtService jwtService) {
-        this.jwtService = jwtService;
+    public JwtAuthenticationService(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     /**
@@ -37,7 +37,7 @@ public final class JwtAuthenticationService {
      * @return a signed JWT token as a String
      */
     public String generateToken(UserDetails user) {
-        return jwtService.generateToken(user.getUsername());
+        return jwtTokenProvider.generateToken(user.getUsername());
     }
 
     /**
@@ -48,7 +48,7 @@ public final class JwtAuthenticationService {
      * @return {@code true} if the token is valid and matches the username, otherwise {@code false}
      */
     public boolean validateToken(String token, String username) {
-        return jwtService.validateToken(token, username);
+        return jwtTokenProvider.validateToken(token, username);
     }
 
 }

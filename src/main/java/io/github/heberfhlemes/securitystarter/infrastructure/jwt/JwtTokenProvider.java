@@ -6,27 +6,36 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class JwtService {
+public class JwtTokenProvider {
 
     private final JwtProperties properties;
+    private final SecretKey signingKey;
 
-    public JwtService(JwtProperties properties) {
+    public JwtTokenProvider(JwtProperties properties) {
         this.properties = properties;
+        this.signingKey = Keys.hmacShaKeyFor(
+                properties.getSecret().getBytes(StandardCharsets.UTF_8)
+        );
+    }
+
+    private SecretKey getSignKey() {
+        return this.signingKey;
     }
 
     /**
      * Generates a JWT token considering a given username.
-     * @param username User's username.
+     * @param subject Subject to use it into token creation
      * @return Created token.
      */
-    public String generateToken(String username) {
+    public String generateToken(String subject) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        return createToken(claims, subject);
     }
 
     /**
@@ -36,21 +45,15 @@ public class JwtService {
      * @return Created token.
      */
     private String createToken(Map<String, Object> claims, String subject) {
-        long now = System.currentTimeMillis();
+        Instant now = Instant.now();
 
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .issuedAt(new Date(now))
-                .expiration(new Date(now + properties.getExpiration()))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(properties.getExpiration())))
                 .signWith(getSignKey())
                 .compact();
-    }
-
-    private SecretKey getSignKey() {
-        return Keys.hmacShaKeyFor(
-                properties.getSecret().getBytes(StandardCharsets.UTF_8)
-        );
     }
 
     /**
@@ -58,8 +61,7 @@ public class JwtService {
      * @param token JWT Token
      * @return Claim extracted
      */
-    // Extrai username do token
-    public String extractUsername(String token) {
+    public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -102,18 +104,13 @@ public class JwtService {
      * @param token JWT token
      * @return {@code true} if the expiration time is strictly earlier than actual time
      */
-    private Boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    /**
-     * Validates token
-     * @param token JWT token
-     * @param username User's username
-     * @return {@code true} if username matches with subject and token is not expired.
-     */
-    public Boolean validateToken(String token, String username) {
-        final String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+
+    public boolean validateToken(String token, String subject) {
+        final String extractedUsername = extractSubject(token);
+        return (extractedUsername.equals(subject) && !isTokenExpired(token));
     }
 }
