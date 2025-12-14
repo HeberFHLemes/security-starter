@@ -1,6 +1,6 @@
 package io.github.heberfhlemes.securitystarter.config;
 
-import io.github.heberfhlemes.securitystarter.application.JwtAuthenticationService;
+import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties;
 
@@ -100,12 +100,12 @@ public class JwtAutoConfiguration {
      * login or token refresh.
      *
      * @param jwtTokenProvider the JWT service used to generate authentication tokens
-     * @return a default {@link JwtAuthenticationService}
+     * @return a default {@link TokenAuthenticationService}
      */
     @Bean
     @ConditionalOnMissingBean
-    public JwtAuthenticationService jwtAuthenticationService(JwtTokenProvider jwtTokenProvider) {
-        return new JwtAuthenticationService(jwtTokenProvider);
+    public TokenAuthenticationService jwtAuthenticationService(JwtTokenProvider jwtTokenProvider) {
+        return new TokenAuthenticationService(jwtTokenProvider);
     }
 
 }

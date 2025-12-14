@@ -1,5 +1,6 @@
 package io.github.heberfhlemes.securitystarter.infrastructure.jwt;
 
+import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class JwtTokenProvider {
+public class JwtTokenProvider implements TokenProvider {
 
     private final JwtProperties properties;
     private final SecretKey signingKey;
