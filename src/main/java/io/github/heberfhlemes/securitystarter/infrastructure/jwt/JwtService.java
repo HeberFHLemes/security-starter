@@ -2,10 +2,10 @@ package io.github.heberfhlemes.securitystarter.infrastructure.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,25 +36,20 @@ public class JwtService {
      * @return Created token.
      */
     private String createToken(Map<String, Object> claims, String subject) {
+        long now = System.currentTimeMillis();
+
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(
-                        new Date(System.currentTimeMillis() + properties.getExpiration())
-                )
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + properties.getExpiration()))
+                .signWith(getSignKey())
                 .compact();
     }
 
-    /**
-     * Gets signature Key
-     * @return Key
-     */
-    // Obtém a chave de assinatura
-    private Key getSignKey() {
+    private SecretKey getSignKey() {
         return Keys.hmacShaKeyFor(
-                properties.getSecret().getBytes()
+                properties.getSecret().getBytes(StandardCharsets.UTF_8)
         );
     }
 
@@ -95,11 +90,11 @@ public class JwtService {
      * @return All claims extracted from the token
      */
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
+        return Jwts.parser()
+                .verifyWith(getSignKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     /**

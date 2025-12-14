@@ -10,7 +10,7 @@
 
 	<name>security-starter</name>
 	<description>Reusable Spring Security starter providing configurable JWT authentication and authorization for multi-module or standalone applications.</description>
-	<!--<url/>-->
+	<url>https://github.com/HeberFHLemes/security-starter</url>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -25,25 +25,34 @@
 			<url>https://www.github.com/HeberFHLemes</url>
 		</developer>
 	</developers>
-	<!--<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>-->
+	<scm>
+		<connection>scm:git:https://github.com/HeberFHLemes/security-starter.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/HeberFHLemes/security-starter.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/HeberFHLemes/security-starter</url>
+	</scm>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<spring-boot.version>4.0.0</spring-boot.version>
-		<jjwt.version>0.11.5</jjwt.version>
+		<jjwt.version>0.13.0</jjwt.version>
 	</properties>
 
-	<!-- Spring BOM -->
 	<dependencyManagement>
 		<dependencies>
+			<!-- Spring BOM -->
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
 				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<!-- Setting JJWT versions with jjwt-bom -->
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-bom</artifactId>
+				<version>${jjwt.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -68,18 +77,15 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
-			<version>${jjwt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
-			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 
@@ -94,16 +100,11 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-autoconfigure-processor</artifactId>
-				<version>${spring-boot.version}</version>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.14.0</version>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<release>${java.version}</release>
 				</configuration>
 			</plugin>
 		</plugins>
