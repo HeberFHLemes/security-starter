@@ -11,4 +11,7 @@
  *
  * @since 1.0.0
  */
+@NullMarked
 package io.github.heberfhlemes.securitystarter.infrastructure.filters;
+
+import org.jspecify.annotations.NullMarked;
