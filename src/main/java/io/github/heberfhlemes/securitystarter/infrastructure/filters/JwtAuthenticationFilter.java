@@ -2,6 +2,7 @@ package io.github.heberfhlemes.securitystarter.infrastructure.filters;
 
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -111,8 +112,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
+            } catch (JwtException | IllegalArgumentException e) {
+                logger.debug("JWT token validation failed");
             } catch (Exception e) {
-                logger.warn("Failed to process token: {}", e.getMessage());
+                logger.error("Unexpected error while processing JWT token", e);
             }
         }
 
