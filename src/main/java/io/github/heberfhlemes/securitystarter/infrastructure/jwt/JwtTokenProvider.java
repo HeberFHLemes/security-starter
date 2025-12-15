@@ -3,6 +3,7 @@ package io.github.heberfhlemes.securitystarter.infrastructure.jwt;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -97,6 +98,8 @@ public class JwtTokenProvider implements TokenProvider {
      *
      * @param token the JWT token
      * @return the subject claim contained in the token
+     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * @throws IllegalArgumentException if the token is null or empty
      */
     @Override
     public String extractSubject(String token) {
@@ -108,6 +111,8 @@ public class JwtTokenProvider implements TokenProvider {
      *
      * @param token the JWT token
      * @return the token's expiration {@link Date}
+     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * @throws IllegalArgumentException if the token is null or empty
      */
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
@@ -119,6 +124,8 @@ public class JwtTokenProvider implements TokenProvider {
      * @param claimsResolver a function to resolve claim (like in {@code Claims::getSubject})
      * @return the result of the function {@code apply(claims)} from claimsResolver.
      * @param <T> the type of the result of the function
+     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * @throws IllegalArgumentException if the token is null or empty
      */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
@@ -130,6 +137,8 @@ public class JwtTokenProvider implements TokenProvider {
      *
      * @param token the JWT token
      * @return the full {@link Claims} payload of the token
+     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * @throws IllegalArgumentException if the token is null or empty
      */
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
@@ -149,16 +158,33 @@ public class JwtTokenProvider implements TokenProvider {
         return extractExpiration(token).before(new Date());
     }
 
-
     /**
      * Validates a JWT token against the specified subject.
      *
+     * <p>This method returns {@code false} for any invalid token, including:
+     * <ul>
+     *   <li>Null or empty tokens</li>
+     *   <li>Expired tokens</li>
+     *   <li>Malformed tokens</li>
+     *   <li>Tokens with invalid signatures</li>
+     *   <li>Tokens with mismatched subjects</li>
+     * </ul>
+     *
+     * <p>For callers who need to distinguish between different failure modes,
+     * use {@link #extractSubject(String)} directly, which will throw specific
+     * {@link JwtException} subtypes.
+     *
      * @param token   the JWT token
      * @param subject the expected subject claim (principal/username)
-     * @return {@code true} if the token is valid and matches the expected subject
+     * @return {@code true} if the token is valid and matches the expected subject,
+     *         {@code false} otherwise
      */
     public boolean validateToken(String token, String subject) {
-        final String extractedUsername = extractSubject(token);
-        return (extractedUsername.equals(subject) && !isTokenExpired(token));
+        try {
+            final String extractedUsername = extractSubject(token);
+            return (extractedUsername.equals(subject) && !isTokenExpired(token));
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }

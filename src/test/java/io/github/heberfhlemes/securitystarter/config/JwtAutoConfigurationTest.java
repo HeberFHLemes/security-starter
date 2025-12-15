@@ -30,8 +30,7 @@ class JwtAutoConfigurationTest {
 
     @Test
     void shouldNotLoadWhenSecurityIsMissing() {
-        new ApplicationContextRunner()
-                .withConfiguration(AutoConfigurations.of(JwtAutoConfiguration.class))
+        contextRunner
                 .withClassLoader(new FilteredClassLoader(SecurityFilterChain.class))
                 .run(context -> {
                     assertThat(context).doesNotHaveBean(TokenProvider.class);
