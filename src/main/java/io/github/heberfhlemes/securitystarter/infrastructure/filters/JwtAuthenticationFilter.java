@@ -7,6 +7,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,17 +18,65 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * JWT authentication filter that extracts and validates JWT tokens from incoming HTTP requests.
+ *
+ * <p>
+ * This filter intercepts requests, looks for the "Authorization" header with a Bearer token,
+ * and if a valid token is present, it sets the corresponding {@link UsernamePasswordAuthenticationToken}
+ * into the {@link SecurityContextHolder} for Spring Security.
+ * </p>
+ *
+ * <p>
+ * This filter relies on a {@link TokenProvider} to handle token parsing and validation, and a
+ * {@link UserDetailsService} to load user details from the subject extracted from the token.
+ * </p>
+ *
+ * <p>
+ * <strong>Important:</strong> This filter does not authenticate credentials;
+ * it only validates tokens for stateless authentication workflows.
+ * Applications must provide their own {@link UserDetailsService} implementation.
+ * </p>
+ *
+ * <p>Thread-safety: This class is stateless and safe for use across multiple requests.</p>
+ *
+ * @author Héber F. H. Lemes
+ * @since 1.0.0
+ */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final TokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Constructs a new JwtAuthenticationFilter with the given dependencies.
+     *
+     * @param tokenProvider the token provider used for parsing and validating tokens
+     * @param userDetailsService the service used to load user details by username/subject
+     */
     public JwtAuthenticationFilter(TokenProvider tokenProvider,
                                    UserDetailsService userDetailsService) {
         this.tokenProvider = tokenProvider;
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Processes an incoming HTTP request to extract and validate a JWT token.
+     *
+     * <p>If the "Authorization" header contains a Bearer token, this method extracts the subject,
+     * loads user details, validates the token, and sets the {@link SecurityContextHolder} with
+     * an authenticated {@link UsernamePasswordAuthenticationToken} if valid.</p>
+     *
+     * <p>Exceptions during token parsing or validation are logged and do not interrupt the filter chain.</p>
+     *
+     * @param request the incoming HTTP request
+     * @param response the HTTP response
+     * @param filterChain the filter chain to pass control to the next filter
+     * @throws ServletException if an error occurs in the filter processing
+     * @throws IOException if an I/O error occurs during processing
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -35,43 +85,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String token;
-        final String subject;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            final String token = authHeader.substring(7); // remove "Bearer "
 
-        // Extracts token (removes "Bearer " substring)
-        token = authHeader.substring(7);
+            try {
+                String subject = tokenProvider.extractSubject(token);
 
-        try {
-            subject = tokenProvider.extractSubject(token);
+                if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
+                    if (tokenProvider.validateToken(token, userDetails.getUsername())) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
 
-                if (tokenProvider.validateToken(token, userDetails.getUsername())) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
+                        authToken.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
 
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-
-                    // Sets authentication in Spring Security context
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
                 }
+            } catch (Exception e) {
+                logger.warn("Failed to process token: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            // Invalid or expired token
-            logger.error("Error processing token: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

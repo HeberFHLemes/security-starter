@@ -2,9 +2,9 @@
  * A Spring Boot starter providing modular JWT-based authentication.
  *
  * <p>
- * This library provides modular, stateless authentication support,
- * primarily based on JWT tokens. It is designed following hexagonal architecture
- * principles, keeping application code decoupled from infrastructure concerns.
+ * This library offers stateless, modular authentication support based on JWT tokens,
+ * designed according to hexagonal architecture principles to keep application code
+ * decoupled from infrastructure concerns.
  * </p>
  *
  * <p>Main modules include:</p>
@@ -20,18 +20,17 @@
  * </ul>
  *
  * <p>
- * <strong>Required dependencies:</strong> Applications must include Spring Security
- * ({@code spring-boot-starter-security}),
- * and a runtime implementation of {@link jakarta.servlet.Servlet} API
- * (such as via {@code spring-boot-starter-web}).
+ * <strong>Dependencies:</strong> Applications must include Spring Security
+ * ({@code spring-boot-starter-security}) and a runtime implementation of the
+ * {@link jakarta.servlet.Servlet} API (e.g., via {@code spring-boot-starter-web}).
  * Required Spring Security classes include
  * {@link org.springframework.security.web.SecurityFilterChain} and
  * {@link org.springframework.security.core.userdetails.UserDetailsService}.
  * </p>
  *
  * <p>
- * The library is intended to be optional and fully replaceable at any layer:
- * applications can provide their own beans, services, or filters as needed.
+ * All components are optional and fully replaceable: applications can provide
+ * their own beans, services, or filters as needed.
  * </p>
  *
  * @since 1.0.0

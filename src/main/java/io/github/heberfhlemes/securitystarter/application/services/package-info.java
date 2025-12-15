@@ -6,5 +6,7 @@
  * technical concerns (such as token generation and validation) to
  * application ports.
  * </p>
+ *
+ * @since 1.0.0
  */
 package io.github.heberfhlemes.securitystarter.application.services;

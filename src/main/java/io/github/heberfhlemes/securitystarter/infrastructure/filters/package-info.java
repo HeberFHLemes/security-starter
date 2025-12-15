@@ -1,10 +1,13 @@
 /**
- * Servlet filters used by the {@code security-starter} to integrate with the
- * Spring Security filter chain.
+ * Contains servlet filters used by the {@code security-starter} library
+ * to integrate with the Spring Security filter chain.
  *
- * <p>This package contains stateless authentication filters such as
+ * <p>
+ * This package includes stateless authentication filters, such as
  * {@link io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter},
- * responsible for extracting and validating authentication tokens from incoming requests.</p>
+ * which are responsible for extracting and validating authentication tokens
+ * from incoming HTTP requests.
+ * </p>
  *
  * @since 1.0.0
  */

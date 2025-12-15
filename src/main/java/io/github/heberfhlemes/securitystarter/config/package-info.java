@@ -7,5 +7,7 @@
  *   <li>JWT authentication auto-configuration</li>
  *   <li>Extension base class for user-defined SecurityFilterChain configuration</li>
  * </ul>
+ *
+ * @since 1.0.0
  */
 package io.github.heberfhlemes.securitystarter.config;
