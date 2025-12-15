@@ -1,10 +1,11 @@
 package io.github.heberfhlemes.securitystarter.config;
 
+import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties;
-
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
+
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -12,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Auto-configuration for JWT-based stateless authentication.
@@ -51,6 +53,11 @@ import org.springframework.security.web.SecurityFilterChain;
  * supporting beans.
  * </p>
  *
+ * <p>
+ * Although this configuration exposes generic token-related services, all default
+ * implementations provided by this module are JWT-based.
+ * </p>
+ *
  * @see CoreSecurityAutoConfiguration
  * @author Héber F. H. Lemes
  * @since 1.0.0
@@ -61,16 +68,17 @@ import org.springframework.security.web.SecurityFilterChain;
 public class JwtAutoConfiguration {
 
     /**
-     * Creates a default {@link JwtTokenProvider} using the configured {@link JwtProperties}.
-     * <p>
-     * Applications may override this bean to customize token generation or validation.
+     * Creates a default JWT-based {@link TokenProvider} using the configured
+     * {@link JwtProperties}.
      *
-     * @param properties the JWT-related configuration properties
-     * @return a configured {@link JwtTokenProvider} instance
+     * <p>
+     * Applications may override this bean to provide a different {@link TokenProvider}
+     * implementation.
+     * </p>
      */
     @Bean
-    @ConditionalOnMissingBean
-    public JwtTokenProvider jwtTokenProvider(JwtProperties properties) {
+    @ConditionalOnMissingBean(TokenProvider.class)
+    public TokenProvider tokenProvider(JwtProperties properties) {
         return new JwtTokenProvider(properties);
     }
 
@@ -81,31 +89,30 @@ public class JwtAutoConfiguration {
      * Applications may override this bean to customize authentication logic or
      * filter ordering.
      *
-     * @param jwtTokenProvider          the JWT service used for token validation
-     * @param userDetailsService  the user details service used for authentication lookup
-     * @return the default {@link JwtAuthenticationFilter}
+     * @param tokenProvider the JWT service used for token validation
+     * @param userDetailsService the user details service used for authentication lookup
+     * @return the default JWT-based {@link OncePerRequestFilter}
      */
     @Bean
-    @ConditionalOnMissingBean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtTokenProvider jwtTokenProvider,
+    @ConditionalOnMissingBean(JwtAuthenticationFilter.class)
+    public OncePerRequestFilter jwtAuthenticationFilter(
+            TokenProvider tokenProvider,
             UserDetailsService userDetailsService) {
-        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+        return new JwtAuthenticationFilter(tokenProvider, userDetailsService);
     }
 
     /**
-     * Provides a simple authentication service wrapper based on JWT.
-     * <p>
-     * Applications may override this bean to customize authentication flows such as
-     * login or token refresh.
+     * Provides a simple token-based authentication service wrapper.
      *
-     * @param jwtTokenProvider the JWT service used to generate authentication tokens
-     * @return a default {@link TokenAuthenticationService}
+     * <p>
+     * In this starter, the default implementation is backed by a JWT-based
+     * {@link TokenProvider}.
+     * </p>
      */
     @Bean
-    @ConditionalOnMissingBean
-    public TokenAuthenticationService jwtAuthenticationService(JwtTokenProvider jwtTokenProvider) {
-        return new TokenAuthenticationService(jwtTokenProvider);
+    @ConditionalOnMissingBean(TokenAuthenticationService.class)
+    public TokenAuthenticationService tokenAuthenticationService(TokenProvider tokenProvider) {
+        return new TokenAuthenticationService(tokenProvider);
     }
 
 }

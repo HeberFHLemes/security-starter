@@ -1,6 +1,7 @@
 package io.github.heberfhlemes.securitystarter.infrastructure.filters;
 
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
+import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +18,12 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
+    public JwtAuthenticationFilter(TokenProvider tokenProvider,
                                    UserDetailsService userDetailsService) {
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenProvider = tokenProvider;
         this.userDetailsService = userDetailsService;
     }
 
@@ -34,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
+        final String token;
         final String subject;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -43,16 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Extracts token (removes "Bearer " substring)
-        jwt = authHeader.substring(7);
+        token = authHeader.substring(7);
 
         try {
-            subject = jwtTokenProvider.extractSubject(jwt);
+            subject = tokenProvider.extractSubject(token);
 
             if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
 
-                if (jwtTokenProvider.validateToken(jwt, userDetails.getUsername())) {
+                if (tokenProvider.validateToken(token, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -70,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             // Invalid or expired token
-            logger.error("Error processing JWT: " + e.getMessage());
+            logger.error("Error processing token: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

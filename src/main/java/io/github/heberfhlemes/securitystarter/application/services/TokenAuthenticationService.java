@@ -5,15 +5,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Application-level service that provides a simplified interface for generating and
- * validating authentication tokens (JWT by default) on top of the lower-level
- * {@link TokenProvider}.
+ * validating authentication tokens on top of the lower-level {@link TokenProvider}.
  *
- * <p>This service does <strong>not</strong> authenticate users. It assumes that the
+ * <p>
+ * This service does <strong>not</strong> authenticate users. It assumes that the
  * application has already verified user credentials and simply needs to issue
- * or validate tokens for stateless authentication workflows.</p>
+ * or validate tokens for stateless authentication workflows.
+ * </p>
  *
- * Applications may provide their own implementation if they need
- * custom token workflows, but using this class is entirely optional.
+ * <p>
+ * This starter provides a JWT-based {@link TokenProvider} by default. Applications
+ * may supply their own {@link TokenProvider} or choose not to use this service at all.
+ * </p>
  *
  * @author Héber F. H. Lemes
  * @since 1.0.0
@@ -23,7 +26,7 @@ public final class TokenAuthenticationService {
     private final TokenProvider tokenProvider;
 
     /**
-     * Creates a new {@code TokenAuthenticationService} with the given {@link TokenProvider}.
+     * Creates a new {@link TokenAuthenticationService} with the given {@link TokenProvider}.
      *
      * @param tokenProvider the underlying token provider used for token operations
      */
@@ -42,14 +45,14 @@ public final class TokenAuthenticationService {
     }
 
     /**
-     * Validates a token and checks whether it belongs to the given username.
+     * Validates a token and checks whether it belongs to the given subject.
      *
      * @param token the token to validate
-     * @param username the expected username extracted from the token
-     * @return {@code true} if the token is valid and matches the username, otherwise {@code false}
+     * @param subject the expected subject extracted from the token
+     * @return {@code true} if the token is valid and matches the subject, otherwise {@code false}
      */
-    public boolean validateToken(String token, String username) {
-        return tokenProvider.validateToken(token, username);
+    public boolean validateToken(String token, String subject) {
+        return tokenProvider.validateToken(token, subject);
     }
 
 }

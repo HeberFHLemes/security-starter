@@ -32,21 +32,21 @@ public abstract class SecurityConfigurer {
 
     /**
      * Configures common security settings for HTTP requests, including disabling CSRF protection
-     * and setting the session management to stateless. Optionally, adds a JWT filter before the
-     * {@link UsernamePasswordAuthenticationFilter} if a {@link OncePerRequestFilter} is provided.
+     * and setting the session management to stateless. Optionally, adds a stateless authentication
+     * filter before the {@link UsernamePasswordAuthenticationFilter}.
      *
      * @param http the {@link HttpSecurity} object to configure
-     * @param jwtFilter an optional {@link OncePerRequestFilter} for JWT authentication. If provided,
-     *                  it will be added before the {@link UsernamePasswordAuthenticationFilter}.
-     * @throws Exception if an error occurs during configuration
+     * @param authenticationFilter an optional {@link OncePerRequestFilter} used for stateless
+     *                             authentication. If provided, it will be added before the
+     *                             {@link UsernamePasswordAuthenticationFilter}.
      */
-    protected void configureCommonSecurity(HttpSecurity http, OncePerRequestFilter jwtFilter) throws Exception {
+    protected void configureCommonSecurity(HttpSecurity http, OncePerRequestFilter authenticationFilter) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        if (jwtFilter != null) {
-            http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        if (authenticationFilter != null) {
+            http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
         }
     }
 
@@ -55,9 +55,8 @@ public abstract class SecurityConfigurer {
      * and setting the session management to stateless.
      *
      * @param http the {@link HttpSecurity} object to configure
-     * @throws Exception if an error occurs during configuration
      */
-    protected void configureCommonSecurity(HttpSecurity http) throws Exception {
+    protected void configureCommonSecurity(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

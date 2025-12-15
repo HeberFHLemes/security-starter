@@ -31,7 +31,7 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * Generates a JWT token considering a given username.
-     * @param subject Subject to use it into token creation
+     * @param subject Subject used as the token principal (JWT subject claim)
      * @return Created token.
      */
     public String generateToken(String subject) {
@@ -42,7 +42,7 @@ public class JwtTokenProvider implements TokenProvider {
     /**
      * Creates token with claims and subject (username).
      * @param claims JWT Claims.
-     * @param subject JWT Subject, in this case, username.
+     * @param subject Subject used as the token principal (JWT subject claim)
      * @return Created token.
      */
     private String createToken(Map<String, Object> claims, String subject) {
@@ -68,7 +68,7 @@ public class JwtTokenProvider implements TokenProvider {
 
     /**
      * Extracts expiration date from token
-     * @param token Token to be extracted
+     * @param token JWT Token to be extracted
      * @return Token's expiration date
      */
     public Date extractExpiration(String token) {

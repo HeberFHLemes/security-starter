@@ -93,11 +93,10 @@ public class CoreSecurityAutoConfiguration {
      *
      * @param config the security configuration used to resolve the manager
      * @return the application's {@link AuthenticationManager}
-     * @throws Exception if the manager could not be created
      */
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
         return config.getAuthenticationManager();
     }
 
