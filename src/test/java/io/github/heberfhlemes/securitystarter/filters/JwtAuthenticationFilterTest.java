@@ -2,12 +2,9 @@ package io.github.heberfhlemes.securitystarter.filters;
 
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
-import io.jsonwebtoken.JwtException;
+
 import jakarta.servlet.FilterChain;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
