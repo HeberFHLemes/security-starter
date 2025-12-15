@@ -87,36 +87,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            final String token = authHeader.substring(7); // remove "Bearer "
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            try {
-                String subject = tokenProvider.extractSubject(token);
+        final String token = authHeader.substring(7); // remove "Bearer "
 
-                if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            final String subject = tokenProvider.extractSubject(token);
 
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-
-                    if (tokenProvider.validateToken(token, userDetails.getUsername())) {
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null,
-                                        userDetails.getAuthorities()
-                                );
-
-                        authToken.setDetails(
-                                new WebAuthenticationDetailsSource().buildDetails(request)
-                        );
-
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }
-                }
-            } catch (JwtException | IllegalArgumentException e) {
-                logger.debug("JWT token validation failed");
-            } catch (Exception e) {
-                logger.error("Unexpected error while processing JWT token", e);
+            if (subject == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+                filterChain.doFilter(request, response);
+                return;
             }
+            if (!tokenProvider.validateToken(token, subject)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
+
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.debug("JWT token validation failed");
+        } catch (Exception e) {
+            logger.error("Unexpected error while processing JWT token", e);
         }
 
         filterChain.doFilter(request, response);
