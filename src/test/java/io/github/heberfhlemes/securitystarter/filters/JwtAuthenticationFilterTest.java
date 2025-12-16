@@ -155,4 +155,21 @@ class JwtAuthenticationFilterTest {
         verifyNoInteractions(tokenProvider, userDetailsService);
     }
 
+    @Test
+    void shouldNotOverrideExistingAuthentication() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("existing", null)
+        );
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer some.token");
+
+        filter.doFilter(request, new MockHttpServletResponse(), Mockito.mock(FilterChain.class));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertThat(authentication).isNotNull();
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+                .isEqualTo("existing");
+    }
+
 }
