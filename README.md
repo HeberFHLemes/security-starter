@@ -1,5 +1,9 @@
 # Security Starter
 
+JWT-based stateless authentication for Spring Boot 4
+
+[![CI/CD Pipeline](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml)
+
 A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication.
 
 This library is designed to **abstract JWT authentication logic**, while keeping your application modular and decoupled from infrastructure.
@@ -8,7 +12,7 @@ This library is designed to **abstract JWT authentication logic**, while keeping
 
 ## Requirements
 
-- Spring Boot 4.x
+- Spring Boot 4.0+
 - Spring Security (`spring-boot-starter-security`)
 - Spring Web (`spring-boot-starter-web`)
 - Do not expose user passwords :)
@@ -25,7 +29,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
   <groupId>io.github.heberfhlemes</groupId>
   <artifactId>security-starter</artifactId>
-  <version>1.0.0</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 
@@ -36,13 +40,14 @@ Add the dependency to your `pom.xml`:
 #### JWT Properties
 In your `application.properties` or `application.yml`:
 ```yaml
-jwt:
-  secret: your-secret-key
+jjwt:
+  secret: ${JJWT_SECRET}
   expiration: 720000 # in ms
 ```
+> Configuration properties use the `jjwt` prefix to reflect the underlying JWT engine (JJWT) used by this starter.
 
-#### SecurityConfigurer
-This is entirely optional, but you can extend `SecurityConfigurationSupport` to define route authorization policies 
+#### SecurityConfigurationSupport
+This is entirely optional, but you can extend `SecurityConfigurationSupport` to define route authorization policies
 while already having some common logic in your security configuration class.
 
 ```java
@@ -68,7 +73,7 @@ public class AppSecurityConfig extends SecurityConfigurationSupport {
 }
 ```
 
-#### Using JwtAuthenticationService
+#### Using TokenAuthenticationService
 Generate and validate tokens in your controllers or services:
 
 ```java
@@ -111,9 +116,16 @@ All core beans are `@ConditionalOnMissingBean`, so you can provide your own impl
 
 ---
 
+### What this starter does NOT do
+
+- Does not provide authentication controllers (login/register)
+- Does not define application routes
+- Does not store users or credentials
+
+---
+
 ### License
 
 This project is licensed under [Apache License, Version 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 See [LICENSE](LICENSE) file for details.
-
