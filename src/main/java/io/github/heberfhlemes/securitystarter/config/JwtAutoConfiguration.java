@@ -13,7 +13,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Auto-configuration for JWT-based stateless authentication.
@@ -91,11 +90,11 @@ public class JwtAutoConfiguration {
      *
      * @param tokenProvider the JWT service used for token validation
      * @param userDetailsService the user details service used for authentication lookup
-     * @return the default JWT-based {@link OncePerRequestFilter}
+     * @return the default {@link JwtAuthenticationFilter}
      */
     @Bean
     @ConditionalOnMissingBean(JwtAuthenticationFilter.class)
-    public OncePerRequestFilter jwtAuthenticationFilter(
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
             TokenProvider tokenProvider,
             UserDetailsService userDetailsService) {
         return new JwtAuthenticationFilter(tokenProvider, userDetailsService);

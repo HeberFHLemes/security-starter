@@ -42,20 +42,17 @@ jwt:
 ```
 
 #### SecurityConfigurer
-This is entirely optional, but you can extend `SecurityConfigurer` to define route authorization policies 
+This is entirely optional, but you can extend `SecurityConfigurationSupport` to define route authorization policies 
 while already having some common logic in your security configuration class.
 
 ```java
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
 @Configuration
 @EnableWebSecurity
-public class AppSecurityConfig extends SecurityConfigurer {
+public class AppSecurityConfig extends SecurityConfigurationSupport {
 
     @Override
     protected void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>
-                                                      .AuthorizationManagerRequestMatcherRegistry auth) {
+                                                  .AuthorizationManagerRequestMatcherRegistry auth) {
         auth
                 .requestMatchers("/public/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -64,7 +61,7 @@ public class AppSecurityConfig extends SecurityConfigurer {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
-        configureCommonSecurity(http, jwtFilter); // from SecurityConfigurer class
+        configureCommonSecurity(http, jwtFilter); // from SecurityConfigurationSupport class
         configureAuthorization(http.authorizeHttpRequests());
         return http.build();
     }
@@ -75,11 +72,29 @@ public class AppSecurityConfig extends SecurityConfigurer {
 Generate and validate tokens in your controllers or services:
 
 ```java
-@Autowired
-private JwtAuthenticationService jwtAuthService;
+import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 
-String token = jwtAuthService.generateToken(userDetails);
-boolean valid = jwtAuthService.validateToken(token, userDetails.getUsername());
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+public class MyClass {
+
+    private final TokenAuthenticationService authenticationService;
+    private final UserDetailsService userDetailsService;
+
+    public MyClass(TokenAuthenticationService authenticationService,
+                   UserDetailsService userDetailsService) {
+        this.authenticationService = authenticationService;
+        this.userDetailsService = userDetailsService;
+    }
+
+    public void someMethod() {
+        UserDetails userDetails = userDetailsService.loadUserByUsername("username");
+
+        String token = authenticationService.generateToken(userDetails);
+        boolean valid = authenticationService.validateToken(token, userDetails.getUsername());
+    }
+}
 ```
 
 ---
@@ -90,9 +105,9 @@ All core beans are `@ConditionalOnMissingBean`, so you can provide your own impl
 - `PasswordEncoder`
 - `AuthenticationProvider`
 - `AuthenticationManager`
-- `JwtService`
+- `JwtTokenProvider`
 - `JwtAuthenticationFilter`
-- `JwtAuthenticationService`
+- `TokenAuthenticationService`
 
 ---
 

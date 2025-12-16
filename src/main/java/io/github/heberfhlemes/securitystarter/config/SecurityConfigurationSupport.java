@@ -28,7 +28,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Héber F. H. Lemes
  * @since 1.0.0
  */
-public abstract class SecurityConfigurer {
+public abstract class SecurityConfigurationSupport {
 
     /**
      * Configures common security settings for HTTP requests, including disabling CSRF protection
