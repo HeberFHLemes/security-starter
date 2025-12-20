@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.heberfhlemes</groupId>
 	<artifactId>security-starter</artifactId>
-	<version>0.1.1</version>
+	<version>0.1.2</version>
 	<packaging>jar</packaging>
 
 	<name>security-starter</name>
@@ -193,6 +193,8 @@
 							</execution>
 						</executions>
 						<configuration>
+							<!--suppress UnresolvedMavenProperty -->
+							<passphrase>${env.GPG_PASSPHRASE}</passphrase>
 							<gpgArguments>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
