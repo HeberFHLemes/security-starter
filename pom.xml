@@ -193,8 +193,6 @@
 							</execution>
 						</executions>
 						<configuration>
-							<!--suppress UnresolvedMavenProperty -->
-							<passphrase>${env.GPG_PASSPHRASE}</passphrase>
 							<gpgArguments>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>

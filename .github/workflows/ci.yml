@@ -69,4 +69,4 @@ jobs:
           export GPG_TTY=$(tty)
           mvn -B -Prelease clean deploy
         env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
