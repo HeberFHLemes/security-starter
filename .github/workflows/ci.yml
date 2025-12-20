@@ -74,4 +74,5 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           MAVEN_GPG_KEYNAME: ${{ secrets.SIGNING_KEYID }}
           GNUPGHOME: ${{ runner.temp }}/gnupg
-        run: mvn -B -Prelease clean deploy
+        run: mvn -B -Prelease clean deploy -Dgpg.passphrase=$MAVEN_GPG_PASSPHRASE
+

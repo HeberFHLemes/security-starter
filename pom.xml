@@ -193,9 +193,11 @@
 							</execution>
 						</executions>
 						<configuration>
+							<executable>gpg2</executable>
 							<useAgent>false</useAgent>
 							<gpgArguments>
 								<arg>--batch</arg>
+								<arg>--yes</arg>
 								<arg>--no-tty</arg>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
