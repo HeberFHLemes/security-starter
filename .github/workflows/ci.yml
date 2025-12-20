@@ -46,9 +46,10 @@ jobs:
 
       - name: Import GPG key
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import
-          echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
-          gpgconf --kill gpg-agent
+          mkdir -p ~/.gnupg
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode > private.key
+          gpg --batch --import private.key
+          rm private.key
           gpg --list-secret-keys --keyid-format=long
 
       - name: Configure Maven settings.xml
@@ -67,8 +68,6 @@ jobs:
           EOF
 
       - name: Publish to Maven Central
-        run: |
-          export GPG_TTY=$(tty)
-          mvn -B -Prelease clean deploy
+        run: mvn -B -Prelease clean deploy
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
