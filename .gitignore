@@ -1,4 +1,6 @@
 target/
+*.asc
+*.base64
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
