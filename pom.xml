@@ -28,7 +28,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/HeberFHLemes/security-starter.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/HeberFHLemes/security-starter.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v0.1.0</tag>
 		<url>https://github.com/HeberFHLemes/security-starter</url>
 	</scm>
 	<distributionManagement>
