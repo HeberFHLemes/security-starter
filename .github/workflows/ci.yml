@@ -54,8 +54,19 @@ jobs:
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           gpgconf --reload gpg-agent
 
+      - name: Fix GPG permissions
+        run: |
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+
       - name: Import GPG key
-        run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | \
+          gpg --batch --yes --pinentry-mode loopback \
+              --passphrase "$GPG_PASSPHRASE" \
+              --import
 
       - name: Configure Maven settings.xml
         run: |
@@ -73,10 +84,5 @@ jobs:
           EOF
 
       - name: Publish to Maven Central
-        env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          mvn -B -Prelease \
-            -Dgpg.passphrase="$MAVEN_GPG_PASSPHRASE" \
-            -DskipTests \
-            clean deploy
+          mvn -B -Prelease -DskipTests clean deploy

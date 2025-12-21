@@ -176,12 +176,10 @@
 							</execution>
 						</executions>
 						<configuration>
-							<useAgent>false</useAgent>
+							<useAgent>true</useAgent>
 							<gpgArguments>
 								<arg>--batch</arg>
 								<arg>--yes</arg>
-								<arg>--pinentry-mode</arg>
-								<arg>loopback</arg>
 							</gpgArguments>
 						</configuration>
 					</plugin>
