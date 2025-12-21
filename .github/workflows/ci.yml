@@ -48,20 +48,6 @@ jobs:
           java-version: 17
           cache: maven
 
-      - name: Fix GPG permissions
-        run: |
-          mkdir -p ~/.gnupg
-          chmod 700 ~/.gnupg
-
-      - name: Import GPG key
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | \
-          gpg --batch --yes --pinentry-mode loopback \
-              --passphrase "$GPG_PASSPHRASE" \
-              --import
-
       - name: Configure Maven settings.xml
         run: |
           mkdir -p ~/.m2

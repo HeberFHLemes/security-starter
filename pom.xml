@@ -161,31 +161,6 @@
 						</configuration>
 					</plugin>
 
-					<!-- GPG signing -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>3.2.8</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<useAgent>false</useAgent>
-							<gpgArguments>
-								<arg>--batch</arg>
-								<arg>--yes</arg>
-								<arg>--pinentry-mode</arg>
-								<arg>loopback</arg>
-							</gpgArguments>
-						</configuration>
-					</plugin>
-
 					<!-- Publishing on central -->
 					<plugin>
 						<groupId>org.sonatype.central</groupId>
@@ -194,6 +169,7 @@
 						<extensions>true</extensions>
 						<configuration>
 							<publishingServerId>central</publishingServerId>
+							<autoPublish>true</autoPublish>
 						</configuration>
 					</plugin>
 				</plugins>
