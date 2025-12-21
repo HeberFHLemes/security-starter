@@ -48,12 +48,6 @@ jobs:
           java-version: 17
           cache: maven
 
-      - name: Configure GPG for loopback
-        run: |
-          mkdir -p ~/.gnupg
-          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-          gpgconf --reload gpg-agent
-
       - name: Fix GPG permissions
         run: |
           mkdir -p ~/.gnupg
