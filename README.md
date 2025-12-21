@@ -2,7 +2,9 @@
 
 JWT-based stateless authentication for Spring Boot 4
 
-[![CI/CD Pipeline](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml) 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.heberfhlemes/security-starter)](https://search.maven.org/artifact/io.github.heberfhlemes/security-starter)
+![License](https://img.shields.io/github/license/HeberFHLemes/security-starter)
 
 A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication.
 
