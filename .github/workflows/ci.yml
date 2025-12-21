@@ -38,6 +38,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -50,12 +52,9 @@ jobs:
         env:
           GNUPGHOME: ${{ runner.temp }}/gnupg
         run: |
-          mkdir -p $GNUPGHOME
-          chmod 700 $GNUPGHOME
+          mkdir -p "$GNUPGHOME"
+          chmod 700 "$GNUPGHOME"
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import
-          echo "allow-loopback-pinentry" >> $GNUPGHOME/gpg-agent.conf
-          gpgconf --kill gpg-agent
-          gpgconf --launch gpg-agent
 
       - name: Configure Maven settings.xml
         run: |
@@ -75,12 +74,5 @@ jobs:
       - name: Publish to Maven Central
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          MAVEN_GPG_KEYNAME: ${{ secrets.SIGNING_KEYID }}
           GNUPGHOME: ${{ runner.temp }}/gnupg
-        run: |
-          export GPG_TTY=$(tty)
-          mvn -B -Prelease clean deploy \
-            -Dgpg.executable=gpg2 \
-            -Dgpg.keyname=$MAVEN_GPG_KEYNAME \
-            -Dgpg.passphrase=$MAVEN_GPG_PASSPHRASE \
-            -Dgpg.useagent=false
+        run: mvn -B -Prelease -DskipTests clean deploy

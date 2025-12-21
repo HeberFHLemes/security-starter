@@ -28,19 +28,8 @@
 	<scm>
 		<connection>scm:git:https://github.com/HeberFHLemes/security-starter.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/HeberFHLemes/security-starter.git</developerConnection>
-		<tag>v0.1.0</tag>
 		<url>https://github.com/HeberFHLemes/security-starter</url>
 	</scm>
-	<distributionManagement>
-		<snapshotRepository>
-			<id>central</id>
-			<url>https://central.sonatype.com/</url>
-		</snapshotRepository>
-		<repository>
-			<id>central</id>
-			<url>https://central.sonatype.com/</url>
-		</repository>
-	</distributionManagement>
 	<properties>
 		<java.version>17</java.version>
 		<spring-boot.version>4.0.0</spring-boot.version>
@@ -124,12 +113,6 @@
 					<release>${java.version}</release>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>3.1.4</version>
-			</plugin>
 		</plugins>
 	</build>
 
@@ -193,15 +176,24 @@
 							</execution>
 						</executions>
 						<configuration>
-							<executable>gpg2</executable>
 							<useAgent>false</useAgent>
 							<gpgArguments>
 								<arg>--batch</arg>
 								<arg>--yes</arg>
-								<arg>--no-tty</arg>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
 							</gpgArguments>
+						</configuration>
+					</plugin>
+
+					<!-- Publishing on central -->
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>0.9.0</version>
+						<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
 						</configuration>
 					</plugin>
 				</plugins>
