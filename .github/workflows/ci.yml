@@ -48,13 +48,14 @@ jobs:
           java-version: 17
           cache: maven
 
-      - name: Import GPG key
-        env:
-          GNUPGHOME: ${{ runner.temp }}/gnupg
+      - name: Configure GPG for loopback
         run: |
-          mkdir -p "$GNUPGHOME"
-          chmod 700 "$GNUPGHOME"
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import
+          mkdir -p ~/.gnupg
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --reload gpg-agent
+
+      - name: Import GPG key
+        run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import
 
       - name: Configure Maven settings.xml
         run: |
@@ -74,5 +75,8 @@ jobs:
       - name: Publish to Maven Central
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          GNUPGHOME: ${{ runner.temp }}/gnupg
-        run: mvn -B -Prelease -DskipTests clean deploy
+        run: |
+          mvn -B -Prelease \
+            -Dgpg.passphrase="$MAVEN_GPG_PASSPHRASE" \
+            -DskipTests \
+            clean deploy
