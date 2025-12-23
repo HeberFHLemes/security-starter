@@ -42,7 +42,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * <p>Loaded automatically via Spring Boot’s auto-configuration mechanism.</p>
  *
  * @author Héber F. H. Lemes
- * @since 1.0.0
+ * @since 0.1.0
  */
 @AutoConfiguration
 @ConditionalOnClass(SecurityFilterChain.class)

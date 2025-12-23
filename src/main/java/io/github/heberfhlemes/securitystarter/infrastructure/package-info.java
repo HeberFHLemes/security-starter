@@ -20,6 +20,6 @@
  * All components are intended to be used internally by the application layer services.
  * </p>
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 package io.github.heberfhlemes.securitystarter.infrastructure;

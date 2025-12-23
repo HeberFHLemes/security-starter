@@ -42,7 +42,7 @@ import java.io.IOException;
  * <p>Thread-safety: This class is stateless and safe for use across multiple requests.</p>
  *
  * @author Héber F. H. Lemes
- * @since 1.0.0
+ * @since 0.1.0
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

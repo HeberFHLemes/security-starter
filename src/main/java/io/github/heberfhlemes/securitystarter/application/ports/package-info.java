@@ -6,6 +6,6 @@
  * but applications may supply their own implementations if custom behavior is required.
  * </p>
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 package io.github.heberfhlemes.securitystarter.application.ports;

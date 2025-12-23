@@ -13,6 +13,6 @@
  * <p>These classes are primarily used internally by higher-level application services
  * such as {@link io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService}.</p>
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 package io.github.heberfhlemes.securitystarter.infrastructure.jwt;

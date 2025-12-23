@@ -59,7 +59,7 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * @see CoreSecurityAutoConfiguration
  * @author Héber F. H. Lemes
- * @since 1.0.0
+ * @since 0.1.0
  */
 @AutoConfiguration(after = CoreSecurityAutoConfiguration.class)
 @ConditionalOnClass(SecurityFilterChain.class)
