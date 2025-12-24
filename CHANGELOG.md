@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.2.0] - Unreleased
+
 ## [0.1.1] - 2025-12-24
 ### Added
 - README badges (Maven Central and License)
