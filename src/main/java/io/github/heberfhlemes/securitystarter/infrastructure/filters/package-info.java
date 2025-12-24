@@ -9,7 +9,7 @@
  * from incoming HTTP requests.
  * </p>
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 @NullMarked
 package io.github.heberfhlemes.securitystarter.infrastructure.filters;

@@ -8,6 +8,6 @@
  * <p>These services are optional. Applications may use them, replace them,
  * or implement their own alternatives as needed.</p>
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 package io.github.heberfhlemes.securitystarter.application;

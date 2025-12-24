@@ -8,6 +8,6 @@
  *   <li>Extension base class for user-defined SecurityFilterChain configuration</li>
  * </ul>
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 package io.github.heberfhlemes.securitystarter.config;

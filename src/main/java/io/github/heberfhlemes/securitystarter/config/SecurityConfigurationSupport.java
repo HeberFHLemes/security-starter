@@ -26,7 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * Spring Security manually.</p>
  *
  * @author Héber F. H. Lemes
- * @since 1.0.0
+ * @since 0.1.0
  */
 public abstract class SecurityConfigurationSupport {
 
