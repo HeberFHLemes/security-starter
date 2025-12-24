@@ -1,6 +1,7 @@
 package io.github.heberfhlemes.securitystarter.infrastructure.jwt;
 
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
+import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

@@ -3,8 +3,8 @@ package io.github.heberfhlemes.securitystarter.config;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
+import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

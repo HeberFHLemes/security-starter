@@ -31,7 +31,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
   <groupId>io.github.heberfhlemes</groupId>
   <artifactId>security-starter</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
@@ -42,11 +42,11 @@ Add the dependency to your `pom.xml`:
 #### JWT Properties
 In your `application.properties` or `application.yml`:
 ```yaml
-jjwt:
-  secret: ${JJWT_SECRET}
-  expiration: 720000 # in ms
+securitystarter:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 720000 # in ms
 ```
-> Configuration properties use the `jjwt` prefix to reflect the underlying JWT engine (JJWT) used by this starter.
 
 #### SecurityConfigurationSupport
 This is entirely optional, but you can extend `SecurityConfigurationSupport` to define route authorization policies

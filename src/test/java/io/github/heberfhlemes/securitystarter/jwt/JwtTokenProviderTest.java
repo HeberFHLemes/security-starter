@@ -1,6 +1,6 @@
 package io.github.heberfhlemes.securitystarter.jwt;
 
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties;
+import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 
 import io.jsonwebtoken.JwtException;
@@ -24,7 +24,7 @@ class JwtTokenProviderTest {
     @BeforeEach
     void setup() {
         JwtProperties props = new JwtProperties();
-        props.setSecret("example-of-long-jjwt-secret-in-properties");
+        props.setSecret("example-of-long-jwt-secret-in-properties");
         props.setExpiration(Duration.ofMillis(100000));
 
         jwtTokenProvider = new JwtTokenProvider(props);
@@ -58,7 +58,7 @@ class JwtTokenProviderTest {
     @Test
     void shouldRejectExpiredToken() throws InterruptedException {
         JwtProperties props = new JwtProperties();
-        props.setSecret("example-of-long-jjwt-secret-in-properties");
+        props.setSecret("example-of-long-jwt-secret-in-properties");
         props.setExpiration(Duration.ofMillis(1));
         JwtTokenProvider provider = new JwtTokenProvider(props);
 

@@ -1,17 +1,26 @@
 /**
- * Infrastructure components responsible for JWT operations.
+ * Infrastructure components responsible for JWT-based security support.
  *
- * <p>This package provides low-level utilities for stateless, thread-safe
- * JWT processing, including:</p>
+ * <p>
+ * This package contains stateless, thread-safe implementations related to
+ * JSON Web Token (JWT) handling, including token creation, parsing, and validation.
+ * </p>
+ *
+ * <p>Provided components include:</p>
  * <ul>
- *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider} — generates,
- *         parses, and validates JWT tokens.</li>
- *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties} — configuration
- *         properties for JWT, including secret, expiration, and algorithm.</li>
+ *     <li>
+ *         {@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider} —
+ *         default infrastructure implementation of the
+ *         {@link io.github.heberfhlemes.securitystarter.application.ports.TokenProvider}
+ *         contract.
+ *     </li>
  * </ul>
  *
- * <p>These classes are primarily used internally by higher-level application services
- * such as {@link io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService}.</p>
+ * <p>
+ * JWT behavior is configured via
+ * {@link io.github.heberfhlemes.securitystarter.properties.JwtProperties},
+ * which are bound to the {@code securitystarter.jwt} configuration namespace.
+ * </p>
  *
  * @since 0.1.0
  */
