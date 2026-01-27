@@ -4,6 +4,7 @@ import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticatio
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 
 import io.jsonwebtoken.JwtException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,10 +12,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -23,23 +23,33 @@ import java.io.IOException;
  * JWT authentication filter that extracts and validates JWT tokens from incoming HTTP requests.
  *
  * <p>
- * This filter intercepts requests, looks for the "Authorization" header with a Bearer token,
- * and if a valid token is present, it sets the corresponding {@link UsernamePasswordAuthenticationToken}
- * into the {@link SecurityContextHolder} for Spring Security.
+ * This filter intercepts requests, looks for the {@code Authorization} header with a Bearer token,
+ * and, if a valid token is present, delegates the creation of a Spring Security
+ * {@link Authentication} instance to a {@link JwtAuthenticationConverter}.
  * </p>
  *
  * <p>
- * This filter relies on a {@link TokenProvider} to handle token parsing and validation, and a
- * {@link UserDetailsService} to load user details from the subject extracted from the token.
+ * The filter itself is responsible only for:
+ * <ul>
+ *   <li>Extracting the token from the request</li>
+ *   <li>Validating the token using a {@link TokenProvider}</li>
+ *   <li>Populating the {@link org.springframework.security.core.context.SecurityContext}</li>
+ * </ul>
  * </p>
  *
  * <p>
- * <strong>Important:</strong> This filter does not authenticate credentials;
- * it only validates tokens for stateless authentication workflows.
- * Applications must provide their own {@link UserDetailsService} implementation.
+ * The resolution of principals, authorities, or user details is delegated to the
+ * {@link JwtAuthenticationConverter}, allowing applications to fully control how
+ * authenticated identities are constructed.
  * </p>
  *
- * <p>Thread-safety: This class is stateless and safe for use across multiple requests.</p>
+ * <p>
+ * <strong>Important:</strong> This filter does not authenticate credentials and does not
+ * perform authorization decisions. It only establishes authentication based on a valid JWT,
+ * following a stateless security model.
+ * </p>
+ *
+ * <p>Thread-safety: This class is stateless and safe for concurrent use.</p>
  *
  * @author Héber F. H. Lemes
  * @since 0.1.0
@@ -52,10 +62,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtAuthenticationConverter authenticationConverter;
 
     /**
-     * Constructs a new JwtAuthenticationFilter with the given dependencies.
+     * Constructs a new JwtAuthenticationFilter.
      *
-     * @param tokenProvider the token provider used for parsing and validating tokens
-     * @param authenticationConverter JwtAuthenticationConverter implementation that provides
+     * @param tokenProvider the JWT token provider
+     * @param authenticationConverter the authentication conversion strategy
      */
     public JwtAuthenticationFilter(
             TokenProvider tokenProvider,
@@ -68,16 +78,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * Processes an incoming HTTP request to extract and validate a JWT token.
      *
      * <p>If the "Authorization" header contains a Bearer token, this method extracts the subject,
-     * loads user details, validates the token, and sets the {@link SecurityContextHolder} with
-     * an authenticated {@link UsernamePasswordAuthenticationToken} if valid.</p>
+     * loads user details, validates the token, and sets the resolved Authentication
+     * into the SecurityContext if valid.</p>
      *
      * <p>Exceptions during token parsing or validation are logged and do not interrupt the filter chain.</p>
      *
-     * @param request the incoming HTTP request
-     * @param response the HTTP response
+     * @param request     the incoming HTTP request
+     * @param response    the HTTP response
      * @param filterChain the filter chain to pass control to the next filter
      * @throws ServletException if an error occurs in the filter processing
-     * @throws IOException if an I/O error occurs during processing
+     * @throws IOException      if an I/O error occurs during processing
      */
     @Override
     protected void doFilterInternal(
@@ -107,11 +117,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            UsernamePasswordAuthenticationToken authToken = authenticationConverter.convert(token, subject);
-            authToken.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request)
-            );
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+            Authentication authentication =
+                    authenticationConverter.convert(token, subject);
+
+            if (authentication != null) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
 
         } catch (JwtException | IllegalArgumentException e) {
             logger.debug("JWT token validation failed");

@@ -33,13 +33,15 @@ class JwtAuthenticationFilterTest {
     private TokenProvider tokenProvider;
     private UserDetailsService userDetailsService;
     private JwtAuthenticationFilter filter;
-    private JwtAuthenticationConverter authenticationConverter;
 
     @BeforeEach
     void setup() {
         tokenProvider = Mockito.mock(TokenProvider.class);
         userDetailsService = Mockito.mock(UserDetailsService.class);
-        authenticationConverter = new UserDetailsJwtAuthenticationConverter(userDetailsService);
+
+        JwtAuthenticationConverter authenticationConverter =
+                new UserDetailsJwtAuthenticationConverter(userDetailsService);
+
         filter = new JwtAuthenticationFilter(tokenProvider, authenticationConverter);
 
         SecurityContextHolder.clearContext();
