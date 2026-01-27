@@ -1,5 +1,6 @@
 package io.github.heberfhlemes.securitystarter.infrastructure.filters;
 
+import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 
 import io.jsonwebtoken.JwtException;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -49,18 +49,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final TokenProvider tokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationConverter authenticationConverter;
 
     /**
      * Constructs a new JwtAuthenticationFilter with the given dependencies.
      *
      * @param tokenProvider the token provider used for parsing and validating tokens
-     * @param userDetailsService the service used to load user details by username/subject
+     * @param authenticationConverter JwtAuthenticationConverter implementation that provides
      */
-    public JwtAuthenticationFilter(TokenProvider tokenProvider,
-                                   UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(
+            TokenProvider tokenProvider,
+            JwtAuthenticationConverter authenticationConverter) {
         this.tokenProvider = tokenProvider;
-        this.userDetailsService = userDetailsService;
+        this.authenticationConverter = authenticationConverter;
     }
 
     /**
@@ -106,20 +107,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-
+            UsernamePasswordAuthenticationToken authToken = authenticationConverter.convert(token, subject);
             authToken.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request)
             );
-
             SecurityContextHolder.getContext().setAuthentication(authToken);
+
         } catch (JwtException | IllegalArgumentException e) {
             logger.debug("JWT token validation failed");
         } catch (Exception e) {

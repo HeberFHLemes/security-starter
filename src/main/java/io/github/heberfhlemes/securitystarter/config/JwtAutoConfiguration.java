@@ -1,16 +1,20 @@
 package io.github.heberfhlemes.securitystarter.config;
 
+import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
+import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -20,8 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * <p>
  * This module registers only the components required for generating, parsing,
  * and validating JWT tokens. It does <strong>not</strong> create authentication-related
- * beans such as {@link org.springframework.security.core.userdetails.UserDetailsService}
- * or {@link org.springframework.security.authentication.AuthenticationProvider};
+ * beans such as {@link UserDetailsService} or {@link AuthenticationProvider};
  * these must be supplied by the application or the core-security module.
  * </p>
  *
@@ -45,8 +48,8 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * <p>
  * This configuration is applied <strong>after</strong> the core security
- * setup provided by {@link CoreSecurityAutoConfiguration}. It is activated
- * automatically when {@link org.springframework.security.web.SecurityFilterChain}
+ * setup provided by {@link CoreSecurityAutoConfiguration}.
+ * It is activated automatically when {@link SecurityFilterChain}
  * is present on the classpath and {@link JwtProperties} is enabled via
  * configuration properties. It registers the JWT filter, token service, and
  * supporting beans.
@@ -81,6 +84,14 @@ public class JwtAutoConfiguration {
         return new JwtTokenProvider(properties);
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(UserDetailsService.class)
+    public JwtAuthenticationConverter jwtAuthenticationConverter(
+            UserDetailsService userDetailsService) {
+        return new UserDetailsJwtAuthenticationConverter(userDetailsService);
+    }
+
     /**
      * Registers the JWT authentication filter that processes incoming requests and
      * extracts/validates JWT tokens.
@@ -89,15 +100,16 @@ public class JwtAutoConfiguration {
      * filter ordering.
      *
      * @param tokenProvider the JWT service used for token validation
-     * @param userDetailsService the user details service used for authentication lookup
+     * @param converter a object from a class that implements {@link JwtAuthenticationConverter},
+     *                  like {@link UserDetailsJwtAuthenticationConverter}
      * @return the default {@link JwtAuthenticationFilter}
      */
     @Bean
-    @ConditionalOnMissingBean(JwtAuthenticationFilter.class)
+    @ConditionalOnMissingBean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
             TokenProvider tokenProvider,
-            UserDetailsService userDetailsService) {
-        return new JwtAuthenticationFilter(tokenProvider, userDetailsService);
+            JwtAuthenticationConverter converter) {
+        return new JwtAuthenticationFilter(tokenProvider, converter);
     }
 
     /**

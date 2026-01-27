@@ -1,8 +1,10 @@
 package io.github.heberfhlemes.securitystarter.filters;
 
+import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 
+import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
 import jakarta.servlet.FilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -31,12 +33,14 @@ class JwtAuthenticationFilterTest {
     private TokenProvider tokenProvider;
     private UserDetailsService userDetailsService;
     private JwtAuthenticationFilter filter;
+    private JwtAuthenticationConverter authenticationConverter;
 
     @BeforeEach
     void setup() {
         tokenProvider = Mockito.mock(TokenProvider.class);
         userDetailsService = Mockito.mock(UserDetailsService.class);
-        filter = new JwtAuthenticationFilter(tokenProvider, userDetailsService);
+        authenticationConverter = new UserDetailsJwtAuthenticationConverter(userDetailsService);
+        filter = new JwtAuthenticationFilter(tokenProvider, authenticationConverter);
 
         SecurityContextHolder.clearContext();
     }
