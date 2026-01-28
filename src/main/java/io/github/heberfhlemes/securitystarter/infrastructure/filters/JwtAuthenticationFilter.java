@@ -29,14 +29,12 @@ import java.io.IOException;
  * {@link Authentication} instance to a {@link JwtAuthenticationConverter}.
  * </p>
  *
- * <p>
- * The filter itself is responsible only for:
+ * <p>The filter itself is responsible only for:</p>
  * <ul>
  *   <li>Extracting the token from the request</li>
  *   <li>Validating the token using a {@link TokenProvider}</li>
  *   <li>Populating the {@link org.springframework.security.core.context.SecurityContext}</li>
  * </ul>
- * </p>
  *
  * <p>
  * The resolution of principals, authorities, or user details is delegated to the
