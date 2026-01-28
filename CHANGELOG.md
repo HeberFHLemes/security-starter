@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0] - Unreleased
+## [0.2.0] - 2026-01-28
 
 ### Breaking Changes
 - Standardized configuration properties prefix for `JwtProperties` to `securitystarter.jwt`
