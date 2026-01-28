@@ -26,7 +26,8 @@ import java.time.Duration;
  * </p>
  *
  * <p>
- * This class is used internally by {@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider}
+ * This class is used internally by
+ * {@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider}
  * (or any {@link io.github.heberfhlemes.securitystarter.application.ports.TokenProvider} implementation)
  * to configure token generation and validation behavior.
  * </p>

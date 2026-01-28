@@ -120,12 +120,15 @@ public class JwtTokenProvider implements TokenProvider {
     }
 
     /**
-     * Extracts a specific claim from token.
-     * @param token JWT token
-     * @param claimsResolver a function to resolve claim (like in {@code Claims::getSubject})
-     * @return the result of the function {@code apply(claims)} from claimsResolver.
-     * @param <T> the type of the result of the function
-     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * Extracts a specific claim from a JWT token.
+     *
+     * @param token the JWT token
+     * @param claimsResolver a function used to resolve a claim from the token claims
+     *                       (e.g. {@code Claims::getSubject})
+     * @param <T> the type of the extracted claim
+     * @return the resolved claim value
+     * @throws JwtException if the token is invalid, expired, malformed,
+     *                      or has an invalid signature
      * @throws IllegalArgumentException if the token is null or empty
      */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -183,6 +186,7 @@ public class JwtTokenProvider implements TokenProvider {
      * @return {@code true} if the token is valid and can be safely used,
      *         {@code false} otherwise
      */
+    @Override
     public boolean validateToken(String token) {
         try {
             extractAllClaims(token);

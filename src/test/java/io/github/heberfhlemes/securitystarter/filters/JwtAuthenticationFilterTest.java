@@ -7,8 +7,6 @@ import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenti
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
 import jakarta.servlet.FilterChain;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

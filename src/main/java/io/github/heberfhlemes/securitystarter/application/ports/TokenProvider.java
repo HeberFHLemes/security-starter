@@ -38,8 +38,9 @@ public interface TokenProvider {
      *
      * <p>
      * This method performs full token validation, including integrity
-     * checks and expiration validation. It does not perform any
-     * application-specific checks such as subject or role validation.
+     * and expiration checks, depending on the token implementation.
+     * It does not perform any application-specific checks such as
+     * subject or role validation.
      * </p>
      *
      * @param token the token to validate
