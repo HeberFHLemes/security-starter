@@ -1,6 +1,6 @@
 package io.github.heberfhlemes.securitystarter.jwt;
 
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtProperties;
+import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 
 import io.jsonwebtoken.JwtException;
@@ -12,7 +12,6 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,7 +23,7 @@ class JwtTokenProviderTest {
     @BeforeEach
     void setup() {
         JwtProperties props = new JwtProperties();
-        props.setSecret("example-of-long-jjwt-secret-in-properties");
+        props.setSecret("example-of-long-jwt-secret-in-properties");
         props.setExpiration(Duration.ofMillis(100000));
 
         jwtTokenProvider = new JwtTokenProvider(props);
@@ -39,33 +38,33 @@ class JwtTokenProviderTest {
         String username = jwtTokenProvider.extractSubject(token);
         assertEquals("user_1", username);
 
-        assertTrue(jwtTokenProvider.validateToken(token, "user_1"));
+        assertTrue(jwtTokenProvider.validateToken(token));
     }
 
     @Test
-    void shouldRejectTokenWithDifferentSubject() {
-        String username = "user_1";
+    void shouldExtractSubjectFromValidToken() {
+        String token = jwtTokenProvider.generateToken("user1");
+        assertEquals("user1", jwtTokenProvider.extractSubject(token));
+    }
 
-        String token = jwtTokenProvider.generateToken("not_user_1");
-        assertNotNull(token);
-
-        String subject = jwtTokenProvider.extractSubject(token);
-        assertNotEquals(username, subject);
-
-        assertFalse(jwtTokenProvider.validateToken(token, username));
+    @Test
+    void extractSubjectShouldThrowForInvalidToken() {
+        assertThrows(JwtException.class, () ->
+                jwtTokenProvider.extractSubject("invalid.token")
+        );
     }
 
     @Test
     void shouldRejectExpiredToken() throws InterruptedException {
         JwtProperties props = new JwtProperties();
-        props.setSecret("example-of-long-jjwt-secret-in-properties");
+        props.setSecret("example-of-long-jwt-secret-in-properties");
         props.setExpiration(Duration.ofMillis(1));
         JwtTokenProvider provider = new JwtTokenProvider(props);
 
         String token = provider.generateToken("user_1");
         Thread.sleep(100);
 
-        assertFalse(provider.validateToken(token, "user_1"));
+        assertFalse(provider.validateToken(token));
     }
 
     @Test
@@ -88,12 +87,12 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldRejectNullToken() {
-        assertFalse(jwtTokenProvider.validateToken(null, "user_1"));
+        assertFalse(jwtTokenProvider.validateToken(null));
     }
 
     @Test
     void shouldRejectEmptyToken() {
-        assertFalse(jwtTokenProvider.validateToken("", "user_1"));
+        assertFalse(jwtTokenProvider.validateToken(""));
     }
 
     @Test
@@ -102,7 +101,7 @@ class JwtTokenProviderTest {
 
         String tamperedToken = token.substring(0, token.length() - 5) + "XXXXX";
 
-        assertFalse(jwtTokenProvider.validateToken(tamperedToken, "user_1"));
+        assertFalse(jwtTokenProvider.validateToken(tamperedToken));
     }
 
 }

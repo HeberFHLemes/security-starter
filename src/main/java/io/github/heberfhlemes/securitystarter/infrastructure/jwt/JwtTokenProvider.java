@@ -1,6 +1,7 @@
 package io.github.heberfhlemes.securitystarter.infrastructure.jwt;
 
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
+import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -58,7 +59,7 @@ public class JwtTokenProvider implements TokenProvider {
         );
     }
 
-    private SecretKey getSignKey() {
+    protected SecretKey getSigningKey() {
         return this.signingKey;
     }
 
@@ -89,7 +90,7 @@ public class JwtTokenProvider implements TokenProvider {
                 .subject(subject)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(properties.getExpiration())))
-                .signWith(getSignKey())
+                .signWith(getSigningKey())
                 .compact();
     }
 
@@ -98,7 +99,7 @@ public class JwtTokenProvider implements TokenProvider {
      *
      * @param token the JWT token
      * @return the subject claim contained in the token
-     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * @throws JwtException if the token is invalid, malformed, expired, or has an invalid signature
      * @throws IllegalArgumentException if the token is null or empty
      */
     @Override
@@ -111,7 +112,7 @@ public class JwtTokenProvider implements TokenProvider {
      *
      * @param token the JWT token
      * @return the token's expiration {@link Date}
-     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * @throws JwtException if the token is invalid, malformed, expired, or has an invalid signature
      * @throws IllegalArgumentException if the token is null or empty
      */
     public Date extractExpiration(String token) {
@@ -119,12 +120,15 @@ public class JwtTokenProvider implements TokenProvider {
     }
 
     /**
-     * Extracts a specific claim from token.
-     * @param token JWT token
-     * @param claimsResolver a function to resolve claim (like in {@code Claims::getSubject})
-     * @return the result of the function {@code apply(claims)} from claimsResolver.
-     * @param <T> the type of the result of the function
-     * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
+     * Extracts a specific claim from a JWT token.
+     *
+     * @param token the JWT token
+     * @param claimsResolver a function used to resolve a claim from the token claims
+     *                       (e.g. {@code Claims::getSubject})
+     * @param <T> the type of the extracted claim
+     * @return the resolved claim value
+     * @throws JwtException if the token is invalid, expired, malformed,
+     *                      or has an invalid signature
      * @throws IllegalArgumentException if the token is null or empty
      */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -140,49 +144,53 @@ public class JwtTokenProvider implements TokenProvider {
      * @throws JwtException if the token is invalid, expired, malformed, or has an invalid signature
      * @throws IllegalArgumentException if the token is null or empty
      */
-    private Claims extractAllClaims(String token) {
+    protected Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(getSignKey())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
     /**
-     * Checks if a JWT token is expired.
+     * Checks whether the token is expired based on the {@code exp} claim.
+     * <p>
+     * This method assumes the token is already valid and correctly signed.
+     * It should not be used as a replacement for {@link #validateToken(String)}.
      *
      * @param token the JWT token
      * @return {@code true} if the token expiration is before the current time
      */
-    private boolean isTokenExpired(String token) {
+    protected boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
     /**
-     * Validates a JWT token against the specified subject.
+     * Validates a JWT token.
      *
-     * <p>This method returns {@code false} for any invalid token, including:
+     * <p>This method performs full JWT validation, including:
      * <ul>
-     *   <li>Null or empty tokens</li>
-     *   <li>Expired tokens</li>
-     *   <li>Malformed tokens</li>
-     *   <li>Tokens with invalid signatures</li>
-     *   <li>Tokens with mismatched subjects</li>
+     *   <li>Signature verification</li>
+     *   <li>Token structure validation</li>
+     *   <li>Expiration validation</li>
      * </ul>
      *
-     * <p>For callers who need to distinguish between different failure modes,
-     * use {@link #extractSubject(String)} directly, which will throw specific
-     * {@link JwtException} subtypes.
+     * <p>This method does not validate application-specific claims
+     * such as subject, roles, or authorities.
      *
-     * @param token   the JWT token
-     * @param subject the expected subject claim (principal/username)
-     * @return {@code true} if the token is valid and matches the expected subject,
+     * <p>For callers who need access to token claims or more detailed
+     * failure information, use {@link #extractSubject(String)} or
+     * {@link #extractClaim(String, Function)} directly.
+     *
+     * @param token the JWT token
+     * @return {@code true} if the token is valid and can be safely used,
      *         {@code false} otherwise
      */
-    public boolean validateToken(String token, String subject) {
+    @Override
+    public boolean validateToken(String token) {
         try {
-            final String extractedUsername = extractSubject(token);
-            return (extractedUsername.equals(subject) && !isTokenExpired(token));
+            extractAllClaims(token);
+            return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }

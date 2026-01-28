@@ -1,4 +1,4 @@
-package io.github.heberfhlemes.securitystarter.infrastructure.jwt;
+package io.github.heberfhlemes.securitystarter.properties;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,7 +10,7 @@ import java.time.Duration;
  * Configuration properties for JWT handling.
  *
  * <p>
- * This class maps configuration properties with prefix {@code jjwt} and
+ * This class maps configuration properties with prefix {@code securitystarter.jwt} and
  * provides values required for token generation and validation, including
  * the secret key and token expiration duration.
  * </p>
@@ -26,7 +26,8 @@ import java.time.Duration;
  * </p>
  *
  * <p>
- * This class is used internally by {@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider}
+ * This class is used internally by
+ * {@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider}
  * (or any {@link io.github.heberfhlemes.securitystarter.application.ports.TokenProvider} implementation)
  * to configure token generation and validation behavior.
  * </p>
@@ -34,7 +35,7 @@ import java.time.Duration;
  * @author Héber F. H. Lemes
  * @since 0.1.0
  */
-@ConfigurationProperties(prefix = "jjwt")
+@ConfigurationProperties(prefix = "securitystarter.jwt")
 public class JwtProperties {
 
     /**
