@@ -7,6 +7,8 @@ import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenti
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
 import jakarta.servlet.FilterChain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +20,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -36,8 +40,8 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setup() {
-        tokenProvider = Mockito.mock(TokenProvider.class);
-        userDetailsService = Mockito.mock(UserDetailsService.class);
+        tokenProvider = mock(TokenProvider.class);
+        userDetailsService = mock(UserDetailsService.class);
 
         JwtAuthenticationConverter authenticationConverter =
                 new UserDetailsJwtAuthenticationConverter(userDetailsService);
@@ -53,8 +57,8 @@ class JwtAuthenticationFilterTest {
         String username = "user_1";
 
         // Arrange
+        when(tokenProvider.validateToken(token)).thenReturn(true);
         when(tokenProvider.extractSubject(token)).thenReturn(username);
-        when(tokenProvider.validateToken(token, username)).thenReturn(true);
 
         UserDetails user = User.withUsername(username)
                 .password("pass")
@@ -69,7 +73,7 @@ class JwtAuthenticationFilterTest {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        FilterChain filterChain = Mockito.mock(FilterChain.class);
+        FilterChain filterChain = mock(FilterChain.class);
 
         // Act
         filter.doFilter(request, response, filterChain);
@@ -87,8 +91,8 @@ class JwtAuthenticationFilterTest {
         assertThat(principal).isEqualTo(user);
 
         verify(filterChain).doFilter(request, response);
+        verify(tokenProvider).validateToken(token);
         verify(tokenProvider).extractSubject(token);
-        verify(tokenProvider).validateToken(token, username);
         verify(userDetailsService).loadUserByUsername(username);
     }
 
@@ -99,13 +103,13 @@ class JwtAuthenticationFilterTest {
 
         // Arrange
         when(tokenProvider.extractSubject(token)).thenReturn(username);
-        when(tokenProvider.validateToken(token, username)).thenReturn(false);
+        when(tokenProvider.validateToken(token)).thenReturn(false);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer " + token);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain filterChain = Mockito.mock(FilterChain.class);
+        FilterChain filterChain = mock(FilterChain.class);
 
         // Act
         filter.doFilter(request, response, filterChain);
@@ -115,10 +119,10 @@ class JwtAuthenticationFilterTest {
                 SecurityContextHolder.getContext().getAuthentication();
 
         assertThat(authentication).isNull();
-
         verify(filterChain).doFilter(request, response);
-        verify(tokenProvider).extractSubject(token);
-        verify(tokenProvider).validateToken(token, username);
+
+        verify(tokenProvider).validateToken(token);
+        verify(tokenProvider, never()).extractSubject(token);
 
         verify(userDetailsService, never()).loadUserByUsername(anyString());
     }
@@ -127,13 +131,14 @@ class JwtAuthenticationFilterTest {
     void shouldNotAuthenticateWhenTokenHasNoSubject() throws Exception {
         String token = "jwt.without.subject";
 
+        when(tokenProvider.validateToken(token)).thenReturn(true);
         when(tokenProvider.extractSubject(token)).thenReturn(null);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer " + token);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain filterChain = Mockito.mock(FilterChain.class);
+        FilterChain filterChain = mock(FilterChain.class);
 
         filter.doFilter(request, response, filterChain);
 
@@ -141,8 +146,8 @@ class JwtAuthenticationFilterTest {
         assertThat(authentication).isNull();
 
         verify(filterChain).doFilter(request, response);
+        verify(tokenProvider).validateToken(token);
         verify(tokenProvider).extractSubject(token);
-        verify(tokenProvider, never()).validateToken(any(), any());
         verify(userDetailsService, never()).loadUserByUsername(any());
     }
 
@@ -150,8 +155,8 @@ class JwtAuthenticationFilterTest {
     void shouldIgnoreWhenAuthorizationHeaderIsMissing() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain filterChain = Mockito.mock(FilterChain.class);
 
+        FilterChain filterChain = mock(FilterChain.class);
         filter.doFilter(request, response, filterChain);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -170,12 +175,41 @@ class JwtAuthenticationFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer some.token");
 
-        filter.doFilter(request, new MockHttpServletResponse(), Mockito.mock(FilterChain.class));
+        FilterChain chain = mock(FilterChain.class);
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
         assertThat(authentication).isNotNull();
-        assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
-                .isEqualTo("existing");
+        assertThat(authentication.getName()).isEqualTo("existing");
+
+        verify(chain).doFilter(any(), any());
+        verifyNoInteractions(tokenProvider, userDetailsService);
     }
 
+    @Test
+    void shouldNotAuthenticateWhenUserDoesNotExist() throws Exception {
+        String token = "valid.jwt.token";
+        String username = "ghost";
+
+        when(tokenProvider.validateToken(token)).thenReturn(true);
+        when(tokenProvider.extractSubject(token)).thenReturn(username);
+        when(userDetailsService.loadUserByUsername(username))
+                .thenThrow(new UsernameNotFoundException("not found"));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer " + token);
+
+        FilterChain chain = mock(FilterChain.class);
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        assertThat(authentication).isNull();
+
+        verify(chain).doFilter(any(), any());
+        verify(tokenProvider).validateToken(token);
+        verify(tokenProvider).extractSubject(token);
+        verify(userDetailsService).loadUserByUsername(username);
+    }
 }

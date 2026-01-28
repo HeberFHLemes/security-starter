@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
  * <p>This abstraction allows applications to customize how principals,
  * authorities, or additional details are resolved from a token.</p>
  *
+ * @author Héber F. H. Lemes
  * @since 0.2.0
  */
 public interface JwtAuthenticationConverter {

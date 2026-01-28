@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * <p>This implementation produces an authenticated
  * {@link UsernamePasswordAuthenticationToken}.</p>
  *
+ * @author Héber F. H. Lemes
  * @since 0.2.0
  */
 public class UserDetailsJwtAuthenticationConverter implements JwtAuthenticationConverter {

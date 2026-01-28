@@ -39,20 +39,20 @@ class JwtTokenProviderTest {
         String username = jwtTokenProvider.extractSubject(token);
         assertEquals("user_1", username);
 
-        assertTrue(jwtTokenProvider.validateToken(token, "user_1"));
+        assertTrue(jwtTokenProvider.validateToken(token));
     }
 
     @Test
-    void shouldRejectTokenWithDifferentSubject() {
-        String username = "user_1";
+    void shouldExtractSubjectFromValidToken() {
+        String token = jwtTokenProvider.generateToken("user1");
+        assertEquals("user1", jwtTokenProvider.extractSubject(token));
+    }
 
-        String token = jwtTokenProvider.generateToken("not_user_1");
-        assertNotNull(token);
-
-        String subject = jwtTokenProvider.extractSubject(token);
-        assertNotEquals(username, subject);
-
-        assertFalse(jwtTokenProvider.validateToken(token, username));
+    @Test
+    void extractSubjectShouldThrowForInvalidToken() {
+        assertThrows(JwtException.class, () ->
+                jwtTokenProvider.extractSubject("invalid.token")
+        );
     }
 
     @Test
@@ -65,7 +65,7 @@ class JwtTokenProviderTest {
         String token = provider.generateToken("user_1");
         Thread.sleep(100);
 
-        assertFalse(provider.validateToken(token, "user_1"));
+        assertFalse(provider.validateToken(token));
     }
 
     @Test
@@ -88,12 +88,12 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldRejectNullToken() {
-        assertFalse(jwtTokenProvider.validateToken(null, "user_1"));
+        assertFalse(jwtTokenProvider.validateToken(null));
     }
 
     @Test
     void shouldRejectEmptyToken() {
-        assertFalse(jwtTokenProvider.validateToken("", "user_1"));
+        assertFalse(jwtTokenProvider.validateToken(""));
     }
 
     @Test
@@ -102,7 +102,7 @@ class JwtTokenProviderTest {
 
         String tamperedToken = token.substring(0, token.length() - 5) + "XXXXX";
 
-        assertFalse(jwtTokenProvider.validateToken(tamperedToken, "user_1"));
+        assertFalse(jwtTokenProvider.validateToken(tamperedToken));
     }
 
 }

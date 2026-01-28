@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -96,8 +97,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
+        final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -106,28 +111,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7); // remove "Bearer "
 
         try {
-            final String subject = tokenProvider.extractSubject(token);
-
-            if (subject == null || SecurityContextHolder.getContext().getAuthentication() != null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-            if (!tokenProvider.validateToken(token, subject)) {
+            if (!tokenProvider.validateToken(token)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            Authentication authentication =
-                    authenticationConverter.convert(token, subject);
+            String subject = tokenProvider.extractSubject(token);
+            if (subject == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
+            Authentication authentication = authenticationConverter.convert(token, subject);
             if (authentication != null) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
         } catch (JwtException | IllegalArgumentException e) {
-            logger.debug("JWT token validation failed");
+            logger.debug("JWT token validation failed for request: {}", request.getRequestURI());
+        } catch (AuthenticationException e) {
+            logger.debug("Authentication failed for JWT token: {}", e.getMessage());
         } catch (Exception e) {
             logger.error("Unexpected error while processing JWT token", e);
+            throw e;
         }
 
         filterChain.doFilter(request, response);
