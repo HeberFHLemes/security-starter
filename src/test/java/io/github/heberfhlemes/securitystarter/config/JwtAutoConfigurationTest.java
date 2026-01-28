@@ -23,8 +23,8 @@ class JwtAutoConfigurationTest {
 
     private ApplicationContextRunner withValidJwtProperties() {
         return contextRunner.withPropertyValues(
-                "jjwt.secret=example-of-long-jjwt-secret-in-properties",
-                "jjwt.expiration=PT1H"
+                "securitystarter.jwt.secret=example-of-long-jwt-secret-in-properties",
+                "securitystarter.jwt.expiration=PT1H"
         );
     }
 
@@ -75,7 +75,7 @@ class JwtAutoConfigurationTest {
     @Test
     void failsWhenSecretIsMissing() {
         contextRunner
-                .withPropertyValues("jjwt.expiration=PT1H")
+                .withPropertyValues("securitystarter.jwt.expiration=PT1H")
                 .withBean(UserDetailsService.class, () -> Mockito.mock(UserDetailsService.class))
                 .run(context -> {
                     Throwable failure = context.getStartupFailure();
@@ -90,8 +90,8 @@ class JwtAutoConfigurationTest {
     void failsWhenJwtSecretIsTooShort() {
         contextRunner
                 .withPropertyValues(
-                        "jjwt.secret=short-secret",
-                        "jjwt.expiration=PT1H"
+                        "securitystarter.jwt.secret=short-secret",
+                        "securitystarter.jwt.expiration=PT1H"
                 )
                 .withBean(UserDetailsService.class, () -> Mockito.mock(UserDetailsService.class))
                 .run(context -> {

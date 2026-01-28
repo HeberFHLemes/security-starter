@@ -48,11 +48,10 @@ public final class TokenAuthenticationService {
      * Validates a token and checks whether it belongs to the given subject.
      *
      * @param token the token to validate
-     * @param subject the expected subject extracted from the token
      * @return {@code true} if the token is valid and matches the subject, otherwise {@code false}
      */
-    public boolean validateToken(String token, String subject) {
-        return tokenProvider.validateToken(token, subject);
+    public boolean validateToken(String token) {
+        return tokenProvider.validateToken(token);
     }
 
 }

@@ -11,7 +11,7 @@
  * <p>Subpackages include:</p>
  * <ul>
  *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt} — JWT token
- *         providers and configuration properties.</li>
+ *         providers</li>
  *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.filters} — stateless
  *         authentication filters integrated with Spring Security.</li>
  * </ul>

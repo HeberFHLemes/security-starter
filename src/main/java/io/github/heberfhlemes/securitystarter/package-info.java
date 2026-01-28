@@ -12,11 +12,12 @@
  *     <li>{@link io.github.heberfhlemes.securitystarter.config} — auto-configuration classes
  *         and helper base class for HTTP security.</li>
  *     <li>{@link io.github.heberfhlemes.securitystarter.application} — application-layer services
- *         for token management.</li>
+ *         and ports for token management.</li>
  *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt} — low-level JWT token
- *         services and configuration properties.</li>
+ *         services.</li>
  *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.filters} — stateless
  *         authentication filters integrated with Spring Security.</li>
+ *     <li>{@link io.github.heberfhlemes.securitystarter.properties} — Configuration properties needed.</li>
  * </ul>
  *
  * <p>

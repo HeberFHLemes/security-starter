@@ -12,7 +12,7 @@ package io.github.heberfhlemes.securitystarter.application.ports;
  * <p>
  * This interface does <strong>not</strong> perform user authentication.
  * It assumes that the subject has already been authenticated by the
- * application and focuses only on token lifecycle concerns.
+ * application and focuses only on token lifecycle and validation concerns.
  * </p>
  *
  * <p>
@@ -34,27 +34,33 @@ public interface TokenProvider {
     String generateToken(String subject);
 
     /**
-     * Validates the given token and checks whether it is associated
-     * with the expected subject.
+     * Validates an authentication token.
      *
      * <p>
-     * Implementations should validate token integrity, expiration,
-     * and subject consistency.
+     * This method performs full token validation, including integrity
+     * and expiration checks, depending on the token implementation.
+     * It does not perform any application-specific checks such as
+     * subject or role validation.
      * </p>
      *
      * @param token the token to validate
-     * @param subject the expected subject contained in the token
-     * @return {@code true} if the token is valid and matches the subject;
+     * @return {@code true} if the token is valid and can be safely used;
      *         {@code false} otherwise
      */
-    boolean validateToken(String token, String subject);
+    boolean validateToken(String token);
 
     /**
      * Extracts the subject associated with the given token.
      *
+     * <p>
+     * This method assumes the token is valid. Callers should invoke
+     * {@link #validateToken(String)} before calling this method.
+     * </p>
+     *
      * @param token the authentication token
      * @return the subject contained in the token
-     * @throws RuntimeException if the token is invalid or cannot be parsed
+     * @throws RuntimeException if the token is invalid, expired,
+     *                          or cannot be parsed
      */
     String extractSubject(String token);
 
