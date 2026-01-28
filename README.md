@@ -164,7 +164,8 @@ public class TestAuthController {
 ---
 
 ### Overriding Beans
-All core beans are `@ConditionalOnMissingBean`, so you can provide your own implementations:
+All core beans are declared with `@ConditionalOnMissingBean`, allowing you to provide 
+custom implementations:
 
 - `PasswordEncoder`
 - `TokenProvider`
@@ -172,13 +173,8 @@ All core beans are `@ConditionalOnMissingBean`, so you can provide your own impl
 - `JwtAuthenticationFilter`
 - `TokenAuthenticationService`
 
----
-
-### What this starter does NOT do
-
-- Does not provide authentication controllers (login/register)
-- Does not define application routes
-- Does not store users or credentials
+This starter provides token-based authentication infrastructure only and does not include
+authentication controllers, route definitions, or user persistence.
 
 ---
 
