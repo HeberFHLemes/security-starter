@@ -32,7 +32,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
   <groupId>io.github.heberfhlemes</groupId>
   <artifactId>security-starter</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
 </dependency>
 ```
 
@@ -77,12 +77,6 @@ public class AppSecurityConfig extends SecurityConfigurationSupport {
         configureAuthorization(http.authorizeHttpRequests());
         return http.build();
     }
-    
-    // Other desired beans
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
-        return config.getAuthenticationManager();
-    }
 }
 ```
 
@@ -99,64 +93,36 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> 
-                new UsernameNotFoundException("User not found: " + username));
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        List<GrantedAuthority> authorities = user.getRoles()
-                .stream()
-                .map(SimpleGrantedAuthority::new)
-                .toList();
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                authorities
-        );
+        return new UserPrincipal(user); // implements UserDetails
     }
 }
 ```
 
-#### Using TokenAuthenticationService
-Generate and validate tokens in your controllers or services:
+#### Using TokenProvider
+Generate and validate tokens:
 
 ```java
-@RestController
-@RequestMapping("/api/auth")
-public class TestAuthController {
+@Service 
+public class AuthService {
+    
+    private final TokenProvider tokenProvider;
 
-    private final TokenAuthenticationService authService;
-    private final AuthenticationManager authenticationManager;
-    private final UserService userService;
-
-    public TestAuthController(TokenAuthenticationService authService,
-                              AuthenticationManager authenticationManager,
-                              UserService userService) {
-        this.authService = authService;
-        this.authenticationManager = authenticationManager;
-        this.userService = userService;
+    public AuthResponse login(LoginRequest request) {
+        User user = authenticateUser(request);
+        GeneratedToken token = tokenProvider.generateToken(user.getEmail());
+        return AuthResponse.from(token);
     }
-
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody LoginDTO loginDTO) {
-        return ResponseEntity.ok(
-                userService.saveUser(loginDTO.username(), loginDTO.password())
-        );
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDTO.username(),
-                        loginDTO.password()
-                )
-        );
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = authService.generateToken(userDetails);
-        
-        return ResponseEntity.ok(new AuthResponseDTO(token, "Login successful"));
+    
+    public void validateToken(String tokenString) {
+        TokenValidationResult result = tokenProvider.validate(tokenString);
+        if (!result.valid()) {
+            throw new InvalidTokenException("Token validation failed");
+        }
     }
 }
 ```

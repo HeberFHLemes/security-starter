@@ -40,7 +40,7 @@ public final class TokenAuthenticationService {
      * Generates a token for the given authenticated user.
      *
      * @param user the authenticated user's details
-     * @return a {@link GeneratedToken object}
+     * @return a {@link GeneratedToken} object
      */
     public GeneratedToken generateToken(UserDetails user) {
         return tokenProvider.generateToken(user.getUsername());
@@ -50,7 +50,7 @@ public final class TokenAuthenticationService {
      * Validates a token and checks whether it belongs to the given subject.
      *
      * @param token the token to validate
-     * @return {@code true} if the token is valid and matches the subject, otherwise {@code false}
+     * @return a {@link TokenValidationResult} object
      */
     public TokenValidationResult validate(String token) {
         return tokenProvider.validate(token);
