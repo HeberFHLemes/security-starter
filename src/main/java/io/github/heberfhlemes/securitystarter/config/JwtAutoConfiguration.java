@@ -7,7 +7,6 @@ import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenti
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
-
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -58,8 +57,8 @@ import org.springframework.security.web.SecurityFilterChain;
  * {@link JwtProperties} is enabled.
  * </p>
  *
- * @see CoreSecurityAutoConfiguration
  * @author Héber F. H. Lemes
+ * @see CoreSecurityAutoConfiguration
  * @since 0.1.0
  */
 @AutoConfiguration(after = CoreSecurityAutoConfiguration.class)
@@ -119,7 +118,7 @@ public class JwtAutoConfiguration {
      * filter ordering.
      *
      * @param tokenProvider the JWT service used for token validation
-     * @param converter an implementation of {@link JwtAuthenticationConverter}
+     * @param converter     an implementation of {@link JwtAuthenticationConverter}
      * @return the default {@link JwtAuthenticationFilter}
      */
     @Bean

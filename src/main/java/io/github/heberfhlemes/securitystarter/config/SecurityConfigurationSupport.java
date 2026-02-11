@@ -35,7 +35,7 @@ public abstract class SecurityConfigurationSupport {
      * and setting the session management to stateless. Optionally, adds a stateless authentication
      * filter before the {@link UsernamePasswordAuthenticationFilter}.
      *
-     * @param http the {@link HttpSecurity} object to configure
+     * @param http                 the {@link HttpSecurity} object to configure
      * @param authenticationFilter an optional {@link OncePerRequestFilter} used for stateless
      *                             authentication. If provided, it will be added before the
      *                             {@link UsernamePasswordAuthenticationFilter}.
@@ -68,7 +68,6 @@ public abstract class SecurityConfigurationSupport {
      *
      * @param auth the {@link AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry}
      *             object that allows you to define authorization rules for specific HTTP request patterns.
-     *
      * @see HttpSecurity#authorizeHttpRequests(Customizer)
      */
     protected abstract void configureAuthorization(

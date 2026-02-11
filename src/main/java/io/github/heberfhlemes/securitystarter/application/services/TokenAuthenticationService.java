@@ -1,6 +1,8 @@
 package io.github.heberfhlemes.securitystarter.application.services;
 
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
+import io.github.heberfhlemes.securitystarter.application.token.GeneratedToken;
+import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -38,9 +40,9 @@ public final class TokenAuthenticationService {
      * Generates a token for the given authenticated user.
      *
      * @param user the authenticated user's details
-     * @return a signed token as a String
+     * @return a {@link GeneratedToken object}
      */
-    public String generateToken(UserDetails user) {
+    public GeneratedToken generateToken(UserDetails user) {
         return tokenProvider.generateToken(user.getUsername());
     }
 
@@ -50,8 +52,8 @@ public final class TokenAuthenticationService {
      * @param token the token to validate
      * @return {@code true} if the token is valid and matches the subject, otherwise {@code false}
      */
-    public boolean validateToken(String token) {
-        return tokenProvider.validateToken(token);
+    public TokenValidationResult validate(String token) {
+        return tokenProvider.validate(token);
     }
 
 }

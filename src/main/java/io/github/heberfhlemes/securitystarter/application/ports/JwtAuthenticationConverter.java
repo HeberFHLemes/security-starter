@@ -23,8 +23,7 @@ public interface JwtAuthenticationConverter {
      * @param token   the raw JWT token
      * @param subject the subject extracted from the token (usually the username)
      * @return an authenticated {@link Authentication} instance, or {@code null}
-     *         if the token cannot be converted
-     *
+     * if the token cannot be converted
      * @since 0.2.0
      */
     Authentication convert(String token, String subject);
