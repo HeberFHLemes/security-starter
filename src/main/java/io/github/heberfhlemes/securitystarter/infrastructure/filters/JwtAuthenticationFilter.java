@@ -2,19 +2,14 @@ package io.github.heberfhlemes.securitystarter.infrastructure.filters;
 
 import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-
-import io.jsonwebtoken.JwtException;
-
+import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,14 +24,12 @@ import java.io.IOException;
  * {@link Authentication} instance to a {@link JwtAuthenticationConverter}.
  * </p>
  *
- * <p>
- * The filter itself is responsible only for:
+ * <p>The filter itself is responsible only for:</p>
  * <ul>
  *   <li>Extracting the token from the request</li>
  *   <li>Validating the token using a {@link TokenProvider}</li>
  *   <li>Populating the {@link org.springframework.security.core.context.SecurityContext}</li>
  * </ul>
- * </p>
  *
  * <p>
  * The resolution of principals, authorities, or user details is delegated to the
@@ -65,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * Constructs a new JwtAuthenticationFilter.
      *
-     * @param tokenProvider the JWT token provider
+     * @param tokenProvider           the JWT token provider
      * @param authenticationConverter the authentication conversion strategy
      */
     public JwtAuthenticationFilter(
@@ -111,29 +104,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7); // remove "Bearer "
 
         try {
-            if (!tokenProvider.validateToken(token)) {
+            TokenValidationResult result = tokenProvider.validate(token);
+
+            if (!result.valid() || result.subject() == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            String subject = tokenProvider.extractSubject(token);
-            if (subject == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+            Authentication authentication =
+                    authenticationConverter.convert(token, result.subject());
 
-            Authentication authentication = authenticationConverter.convert(token, subject);
             if (authentication != null) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
-        } catch (JwtException | IllegalArgumentException e) {
-            logger.debug("JWT token validation failed for request: {}", request.getRequestURI());
-        } catch (AuthenticationException e) {
-            logger.debug("Authentication failed for JWT token: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Unexpected error while processing JWT token", e);
-            throw e;
+            logger.debug("JWT processing failed for request: {}", request.getRequestURI());
         }
 
         filterChain.doFilter(request, response);

@@ -1,5 +1,32 @@
 # Changelog
 
+---
+
+## [0.3.0] - 2026-02-11
+
+### Breaking Changes
+
+* Replaced primitive return types in `TokenProvider` with structured records:
+
+    * `generateToken` now returns `GeneratedToken`
+    * `validate` now returns `TokenValidationResult`
+* Removed legacy validation methods in favor of a single structured validation flow
+
+### Changed
+
+* Refactored token API to provide richer and more cohesive validation results
+* Simplified `JwtTokenProvider` implementation
+* Introduced `Clock` injection into `JwtTokenProvider` for deterministic expiration handling
+* Improved Javadocs across token-related components
+* Updated tests and dependent classes to align with the new token API
+
+### Added
+
+* `GeneratedToken` record to encapsulate token metadata (token, issuedAt, expiresAt)
+* `TokenValidationResult` record to encapsulate validation outcome and extracted claims
+
+---
+
 ## [0.2.0] - 2026-01-28
 
 ### Breaking Changes

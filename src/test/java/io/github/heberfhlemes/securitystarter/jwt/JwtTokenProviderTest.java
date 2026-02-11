@@ -1,19 +1,21 @@
 package io.github.heberfhlemes.securitystarter.jwt;
 
-import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
+import io.github.heberfhlemes.securitystarter.application.token.GeneratedToken;
+import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
-
-import io.jsonwebtoken.JwtException;
-
+import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JwtTokenProviderTest {
@@ -24,34 +26,23 @@ class JwtTokenProviderTest {
     void setup() {
         JwtProperties props = new JwtProperties();
         props.setSecret("example-of-long-jwt-secret-in-properties");
-        props.setExpiration(Duration.ofMillis(100000));
+        props.setExpiration(Duration.ofMillis(100_000));
 
         jwtTokenProvider = new JwtTokenProvider(props);
     }
 
     @Test
-    void shouldGenerateExtractAndValidateJwtToken() {
-        String token = jwtTokenProvider.generateToken("user_1");
+    void shouldGenerateAndValidateJwtToken() {
+        GeneratedToken generated = jwtTokenProvider.generateToken("user_1");
 
-        assertNotNull(token);
+        assertNotNull(generated.token());
 
-        String username = jwtTokenProvider.extractSubject(token);
-        assertEquals("user_1", username);
+        TokenValidationResult result =
+                jwtTokenProvider.validate(generated.token());
 
-        assertTrue(jwtTokenProvider.validateToken(token));
-    }
-
-    @Test
-    void shouldExtractSubjectFromValidToken() {
-        String token = jwtTokenProvider.generateToken("user1");
-        assertEquals("user1", jwtTokenProvider.extractSubject(token));
-    }
-
-    @Test
-    void extractSubjectShouldThrowForInvalidToken() {
-        assertThrows(JwtException.class, () ->
-                jwtTokenProvider.extractSubject("invalid.token")
-        );
+        assertTrue(result.valid());
+        assertEquals("user_1", result.subject());
+        assertNotNull(result.expiresAt());
     }
 
     @Test
@@ -59,49 +50,93 @@ class JwtTokenProviderTest {
         JwtProperties props = new JwtProperties();
         props.setSecret("example-of-long-jwt-secret-in-properties");
         props.setExpiration(Duration.ofMillis(1));
+
         JwtTokenProvider provider = new JwtTokenProvider(props);
 
-        String token = provider.generateToken("user_1");
-        Thread.sleep(100);
+        String token = provider.generateToken("user_1").token();
+        Thread.sleep(50);
 
-        assertFalse(provider.validateToken(token));
-    }
+        TokenValidationResult result = provider.validate(token);
 
-    @Test
-    void shouldRejectMalformedToken() {
-        assertThrows(JwtException.class, () ->
-                jwtTokenProvider.extractSubject("not.a.valid.token"));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenExtractingFromNullToken() {
-        assertThrows(IllegalArgumentException.class, () ->
-                jwtTokenProvider.extractSubject(null));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenExtractingFromEmptyToken() {
-        assertThrows(IllegalArgumentException.class, () ->
-                jwtTokenProvider.extractSubject(""));
+        assertFalse(result.valid());
+        assertNull(result.subject());
+        assertNull(result.expiresAt());
     }
 
     @Test
     void shouldRejectNullToken() {
-        assertFalse(jwtTokenProvider.validateToken(null));
+        TokenValidationResult result = jwtTokenProvider.validate(null);
+
+        assertFalse(result.valid());
+        assertNull(result.subject());
+        assertNull(result.expiresAt());
     }
 
     @Test
     void shouldRejectEmptyToken() {
-        assertFalse(jwtTokenProvider.validateToken(""));
+        TokenValidationResult result = jwtTokenProvider.validate("");
+
+        assertFalse(result.valid());
+        assertNull(result.subject());
+        assertNull(result.expiresAt());
     }
 
     @Test
     void shouldRejectTamperedToken() {
-        String token = jwtTokenProvider.generateToken("user_1");
+        String token = jwtTokenProvider.generateToken("user_1").token();
 
-        String tamperedToken = token.substring(0, token.length() - 5) + "XXXXX";
+        String tamperedToken =
+                token.substring(0, token.length() - 5) + "XXXXX";
 
-        assertFalse(jwtTokenProvider.validateToken(tamperedToken));
+        TokenValidationResult result =
+                jwtTokenProvider.validate(tamperedToken);
+
+        assertFalse(result.valid());
+        assertNull(result.subject());
+        assertNull(result.expiresAt());
     }
 
+    @Test
+    void shouldRejectTokenSignedWithDifferentSecret() {
+        String token = jwtTokenProvider.generateToken("user_1").token();
+
+        JwtProperties otherProps = new JwtProperties();
+        otherProps.setSecret("another-very-long-secret-key-123456");
+        otherProps.setExpiration(Duration.ofSeconds(60));
+
+        JwtTokenProvider otherProvider =
+                new JwtTokenProvider(otherProps);
+
+        TokenValidationResult result =
+                otherProvider.validate(token);
+
+        assertFalse(result.valid());
+        assertNull(result.subject());
+        assertNull(result.expiresAt());
+    }
+
+    @Test
+    void shouldReturnExpirationConsistentWithConfiguration() {
+        Duration expiration = Duration.ofSeconds(60);
+
+        Instant fixedNow = Instant.parse("2026-01-01T00:00:00Z");
+        Clock fixedClock = Clock.fixed(fixedNow, ZoneOffset.UTC);
+
+        JwtProperties props = new JwtProperties();
+        props.setSecret("example-of-long-jwt-secret-in-properties");
+        props.setExpiration(expiration);
+
+        JwtTokenProvider provider = new JwtTokenProvider(props, fixedClock);
+
+        String token = provider.generateToken("user_1").token();
+
+        TokenValidationResult result = provider.validate(token);
+
+        assertTrue(result.valid());
+        assertNotNull(result.expiresAt());
+
+        Instant expectedExpiration = fixedNow.plus(expiration);
+
+        assertEquals(expectedExpiration, result.expiresAt());
+    }
 }
