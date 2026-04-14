@@ -1,8 +1,7 @@
 /**
  * Application-layer security services exposed by the {@code security-starter}.
  *
- * <p>This package contains high-level classes used by applications, such as
- * {@link io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService},
+ * <p>This package contains high-level classes used by applications,
  * which provide convenience operations for token-based authentication.</p>
  *
  * <p>These services are optional. Applications may use them, replace them,

@@ -137,7 +137,6 @@ custom implementations:
 - `TokenProvider`
 - `JwtAuthenticationConverter`
 - `JwtAuthenticationFilter`
-- `TokenAuthenticationService`
 
 This starter provides token-based authentication infrastructure only and does not include
 authentication controllers, route definitions, or user persistence.

@@ -1,13 +1,10 @@
 /**
- * Application layer components responsible for JWT generation,
- * validation, and token-related data transfer structures.
+ * Public API for JWT token generation and validation results.
  *
- * <p>This package contains abstractions and implementations
- * that encapsulate token handling logic without exposing
- * infrastructure-specific details to upper layers.</p>
- *
- * <p>The goal is to keep token management cohesive,
- * testable, and independent from web or persistence concerns.</p>
+ * <p>
+ * This package contains immutable data structures used to represent
+ * generated tokens and validation outcomes.
+ * </p>
  *
  * @since 0.3.0
  */
