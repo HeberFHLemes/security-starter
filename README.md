@@ -13,11 +13,10 @@ from infrastructure.
 
 ## Requirements
 
+- Java 17+
 - Spring Boot 4.x
-- Spring Security (`spring-boot-starter-security`)
-- Spring Web (`spring-boot-starter-web`)
-
-> **Note:** The starter relies on Spring Security and a runtime implementation of the Jakarta Servlet API (usually included via Spring Web).
+- Spring Security
+- A Jakarta Servlet API implementation (typically provided by Spring Web)
 
 ---
 
