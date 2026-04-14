@@ -2,11 +2,12 @@
 
 JWT-based stateless authentication for Spring Boot
 
-[![CI/CD Pipeline](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml) 
+[![CI/CD Pipeline](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/HeberFHLemes/security-starter/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.heberfhlemes/security-starter)](https://search.maven.org/artifact/io.github.heberfhlemes/security-starter)
 ![License](https://img.shields.io/github/license/HeberFHLemes/security-starter)
 
-A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication. It **abstracts JWT authentication logic**, while keeping your application modular and decoupled 
+A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication.
+It **abstracts JWT authentication logic**, while keeping your application modular and decoupled
 from infrastructure.
 
 ---
@@ -26,27 +27,30 @@ Add the dependency to your `pom.xml`:
 
 ```xml
 <dependency>
-  <groupId>io.github.heberfhlemes</groupId>
-  <artifactId>security-starter</artifactId>
-  <version>0.3.1</version>
+    <groupId>io.github.heberfhlemes</groupId>
+    <artifactId>security-starter</artifactId>
+    <version>0.3.1</version>
 </dependency>
 ```
 
 ---
 
-### Configuration
+## Configuration
 
-#### JWT Properties
+### JWT Properties
+
 In your `application.properties` or `application.yml`:
+
 ```yaml
 securitystarter:
   jwt:
     secret: ${JWT_SECRET}
-    expiration: 720000 # in milliseconds
+    expiration: 720000 # 12 minutes (milliseconds)
     issuer: # optional JWT "iss" (issuer) claim
 ```
 
-#### SecurityConfigurationSupport
+### SecurityConfigurationSupport
+
 This is entirely optional. You can extend SecurityConfigurationSupport to define route authorization policies
 while reusing common security configuration logic.
 
@@ -67,7 +71,7 @@ public class AppSecurityConfig extends SecurityConfigurationSupport {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, 
+            HttpSecurity http,
             JwtAuthenticationFilter jwtFilter
     ) throws Exception {
         configureCommonSecurity(http, jwtFilter); // from SecurityConfigurationSupport
@@ -77,7 +81,7 @@ public class AppSecurityConfig extends SecurityConfigurationSupport {
 }
 ```
 
-#### Creating a custom UserDetailsService implementation
+### Creating a custom UserDetailsService implementation
 
 ```java
 @Service
@@ -100,13 +104,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 }
 ```
 
-#### Using TokenProvider
+### Using TokenProvider
+
 Generate and validate tokens:
 
 ```java
-@Service 
+@Service
 public class AuthService {
-    
+
     private final TokenProvider tokenProvider;
 
     public AuthResponse login(LoginRequest request) {
@@ -114,7 +119,7 @@ public class AuthService {
         GeneratedToken token = tokenProvider.generateToken(user.getEmail());
         return AuthResponse.from(token);
     }
-    
+
     public void validateToken(String tokenString) {
         TokenValidationResult result = tokenProvider.validate(tokenString);
         if (!result.valid()) {
@@ -126,7 +131,8 @@ public class AuthService {
 
 ---
 
-### Overriding Beans
+## Overriding Beans
+
 All core Spring beans are declared with `@ConditionalOnMissingBean`, allowing full customization:
 
 - `PasswordEncoder`
@@ -134,21 +140,12 @@ All core Spring beans are declared with `@ConditionalOnMissingBean`, allowing fu
 - `JwtAuthenticationConverter`
 - `JwtAuthenticationFilter`
 
-This starter provides token-based authentication infrastructure only and does not include
-authentication controllers, route definitions, or user persistence.
+This starter provides authentication infrastructure only.
+It does not include controllers, route definitions, or user persistence.
 
 ---
 
-### JWT Notes
-
-- Tokens are signed using HS256
-- Secret key must be at least 32 bytes
-- Expiration is enforced during validation
-- Issuer validation is optional but recommended
-
----
-
-### License
+## License
 
 This project is licensed under [Apache License, Version 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html)
 

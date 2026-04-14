@@ -6,6 +6,7 @@
     * [Changed](#changed)
     * [Added](#added)
     * [Deprecated](#deprecated)
+    * [Removed](#removed)
   * [[0.3.0] - 2026-02-11](#030---2026-02-11)
     * [Breaking Changes](#breaking-changes)
     * [Changed](#changed-1)
@@ -30,10 +31,9 @@
 
 ### Changed
 
-* Replaced default `PasswordEncoder` from `BCryptPasswordEncoder` to `DelegatingPasswordEncoder`
-* Extended `JwtTokenProvider` with support for custom claims during token generation
+* Replaced default `PasswordEncoder` from `BCryptPasswordEncoder` with `DelegatingPasswordEncoder`
 * Added optional issuer claim support in `JwtProperties`
-* Bumped Spring Boot version to 4.0.5 (for BOM)
+* Bumped Spring Boot version to 4.0.5 (BOM)
 
 ### Added
 
@@ -42,6 +42,10 @@
 ### Deprecated
 
 * Marked `TokenAuthenticationService` as deprecated
+
+### Removed
+
+* Auto-configuration bean for `TokenAuthenticationService`
 
 ## [0.3.0] - 2026-02-11
 
