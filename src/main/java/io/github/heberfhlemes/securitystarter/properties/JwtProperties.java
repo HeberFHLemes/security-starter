@@ -1,5 +1,6 @@
 package io.github.heberfhlemes.securitystarter.properties;
 
+import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -45,9 +46,23 @@ public class JwtProperties {
     private String secret;
 
     /**
-     * Token expiration duration. Defaults to 12 minutes.
+     * Expiration time claim ("exp").
+     * <p>Defaults to 12 minutes.</p>
      */
     private Duration expiration = Duration.ofMillis(720000);
+
+    /**
+     * Issuer claim ("iss").
+     * <p>
+     * While not required by the JWT specification
+     * (<a href="https://www.rfc-editor.org/rfc/rfc7519#section-4.1.1">
+     *     RFC 7519
+     * </a>),
+     * it is strongly recommended in production systems to identify the token issuer and prevent misuse.
+     * </p>
+     */
+    @Nullable
+    private String issuer;
 
     public String getSecret() {
         return secret;
@@ -63,6 +78,15 @@ public class JwtProperties {
 
     public void setExpiration(Duration expiration) {
         this.expiration = expiration;
+    }
+
+    @Nullable
+    public String getIssuer() {
+        return issuer;
+    }
+
+    public void setIssuer(@Nullable String issuer) {
+        this.issuer = issuer;
     }
 
     /**
