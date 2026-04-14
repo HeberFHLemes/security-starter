@@ -17,7 +17,6 @@ package io.github.heberfhlemes.securitystarter.config;
 
 import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
@@ -140,29 +139,5 @@ public class JwtAutoConfiguration {
             TokenProvider tokenProvider,
             JwtAuthenticationConverter converter) {
         return new JwtAuthenticationFilter(tokenProvider, converter);
-    }
-
-    /**
-     * Provides a simple token-based authentication service facade.
-     *
-     * <p>
-     * This service is intended for use in controllers or application services
-     * to generate and validate tokens without directly interacting with the
-     * underlying {@link TokenProvider}.
-     * </p>
-     *
-     * <p>
-     * In this starter, the default implementation is backed by a JWT-based
-     * {@link TokenProvider}.
-     * </p>
-     *
-     * @param tokenProvider the token provider implementation
-     * @return a token authentication service
-     */
-    @Bean
-    @Deprecated(since = "0.3.1")
-    @ConditionalOnMissingBean(TokenAuthenticationService.class)
-    public TokenAuthenticationService tokenAuthenticationService(TokenProvider tokenProvider) {
-        return new TokenAuthenticationService(tokenProvider);
     }
 }
