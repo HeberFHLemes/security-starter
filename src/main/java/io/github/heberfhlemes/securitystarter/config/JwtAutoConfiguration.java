@@ -35,8 +35,6 @@ import org.springframework.security.web.SecurityFilterChain;
  *       Spring Security {@link org.springframework.security.core.Authentication}.</li>
  *   <li>{@link JwtAuthenticationFilter} — a stateless security filter that extracts
  *       and validates JWTs from incoming requests.</li>
- *   <li>{@link TokenAuthenticationService} — a simple facade for token operations,
- *       intended for use in controllers or application services.</li>
  * </ul>
  *
  * <p>
@@ -147,6 +145,7 @@ public class JwtAutoConfiguration {
      * @return a token authentication service
      */
     @Bean
+    @Deprecated(since = "0.3.1")
     @ConditionalOnMissingBean(TokenAuthenticationService.class)
     public TokenAuthenticationService tokenAuthenticationService(TokenProvider tokenProvider) {
         return new TokenAuthenticationService(tokenProvider);

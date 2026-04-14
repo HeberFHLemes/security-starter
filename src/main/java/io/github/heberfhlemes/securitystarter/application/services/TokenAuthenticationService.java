@@ -20,9 +20,11 @@ import org.springframework.security.core.userdetails.UserDetails;
  * may supply their own {@link TokenProvider} or choose not to use this service at all.
  * </p>
  *
+ * @deprecated since 0.3.1, use {@link TokenProvider} implementations directly.
  * @author Héber F. H. Lemes
  * @since 0.1.0
  */
+@Deprecated(since = "0.3.1")
 public final class TokenAuthenticationService {
 
     private final TokenProvider tokenProvider;

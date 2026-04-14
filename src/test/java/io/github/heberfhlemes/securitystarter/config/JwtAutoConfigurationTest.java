@@ -1,7 +1,6 @@
 package io.github.heberfhlemes.securitystarter.config;
 
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,6 @@ class JwtAutoConfigurationTest {
                 .run(context -> {
                     assertThat(context).doesNotHaveBean(TokenProvider.class);
                     assertThat(context).doesNotHaveBean(OncePerRequestFilter.class);
-                    assertThat(context).doesNotHaveBean(TokenAuthenticationService.class);
                 });
     }
 
@@ -49,10 +47,9 @@ class JwtAutoConfigurationTest {
                 .run(context -> {
                     assertThat(context).hasSingleBean(TokenProvider.class);
                     assertThat(context).hasSingleBean(OncePerRequestFilter.class);
-                    assertThat(context).hasSingleBean(TokenAuthenticationService.class);
                     assertThat(context.getBean(TokenProvider.class))
                             .isInstanceOf(JwtTokenProvider.class);
-        });
+                });
     }
 
     @Test

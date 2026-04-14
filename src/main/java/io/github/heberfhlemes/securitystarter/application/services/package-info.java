@@ -1,10 +1,9 @@
 /**
- * Application-level services that coordinate authentication use cases.
+ * Legacy application-level services.
  *
  * <p>
- * Services in this package aim to be framework-agnostic and delegate all
- * technical concerns (such as token generation and validation) to
- * application ports.
+ * This package contains deprecated components maintained for backward
+ * compatibility. These APIs will be removed in a future version.
  * </p>
  *
  * @since 0.1.0
