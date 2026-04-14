@@ -5,15 +5,18 @@ import io.github.heberfhlemes.securitystarter.application.token.GeneratedToken;
 import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
 import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.Nullable;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
+import java.util.function.Consumer;
 
 /**
  * JWT-based implementation of {@link TokenProvider}.
@@ -72,9 +75,10 @@ public class JwtTokenProvider implements TokenProvider {
      */
     public JwtTokenProvider(JwtProperties properties, Clock clock) {
         this.properties = properties;
-        this.signingKey = Keys.hmacShaKeyFor(
-                properties.getSecret().getBytes(StandardCharsets.UTF_8)
-        );
+
+        byte[] keyBytes = properties.getSecret().getBytes(StandardCharsets.UTF_8);
+        this.signingKey = Keys.hmacShaKeyFor(keyBytes);
+
         this.clock = clock;
     }
 
@@ -86,16 +90,57 @@ public class JwtTokenProvider implements TokenProvider {
      */
     @Override
     public GeneratedToken generateToken(String subject) {
+        return generateToken(subject, builder -> {
+        });
+    }
+
+    /**
+     * Generates a signed JWT token for the given subject.
+     *
+     * <p>Examples:</p>
+     * <ul>
+     *   <li>
+     *     Token with basic claims:
+     *     <pre>{@code
+     * generateToken("my-token-subject");
+     *     }</pre>
+     *   </li>
+     *   <li>
+     *     Token with additional claims:
+     *     <pre>{@code
+     * generateToken("my-token-subject", builder ->
+     *     builder.claim("role", "ADMIN")
+     * );
+     *     }</pre>
+     *   </li>
+     * </ul>
+     *
+     * @param subject    the principal identifier stored in the {@code sub} claim
+     * @param customizer a callback that allows adding custom claims or headers
+     *                   to the JWT before it is signed (may be {@code null})
+     * @return a {@link GeneratedToken} containing the token and its metadata
+     */
+    public GeneratedToken generateToken(String subject, @Nullable Consumer<JwtBuilder> customizer) {
 
         Instant now = clock.instant();
         Instant expiration = now.plus(properties.getExpiration());
 
-        String token = Jwts.builder()
+        JwtBuilder builder = Jwts.builder()
                 .subject(subject)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
-                .signWith(signingKey)
-                .compact();
+                .signWith(signingKey);
+
+        String issuer = properties.getIssuer();
+        if (issuer != null && !issuer.isBlank()) {
+            builder.issuer(issuer);
+        }
+
+        if (customizer != null) {
+            customizer.accept(builder);
+        }
+
+        String token = builder.compact();
 
         return new GeneratedToken(token, now, expiration);
     }
@@ -135,7 +180,19 @@ public class JwtTokenProvider implements TokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
 
+            String expectedIssuer = properties.getIssuer();
+            if (expectedIssuer != null && !expectedIssuer.isBlank()) {
+                if (!expectedIssuer.equals(claims.getIssuer())) {
+                    return new TokenValidationResult(false, null, null);
+                }
+            }
+
             String subject = claims.getSubject();
+
+            if (subject == null || subject.isBlank()) {
+                return new TokenValidationResult(false, null, null);
+            }
+
             Instant expiresAt = claims.getExpiration().toInstant();
 
             return new TokenValidationResult(true, subject, expiresAt);

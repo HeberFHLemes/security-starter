@@ -46,6 +46,52 @@ class JwtTokenProviderTest {
     }
 
     @Test
+    void shouldGenerateAndValidateJwtTokenWithCustomClaims() {
+        final String issuer = "myapp";
+
+        JwtProperties otherProps = new JwtProperties();
+        otherProps.setSecret("another-very-long-secret-key-123456");
+        otherProps.setIssuer(issuer);
+
+        JwtTokenProvider customProvider = new JwtTokenProvider(otherProps);
+
+        GeneratedToken generated = customProvider
+                .generateToken("user_1", builder -> builder.issuer(issuer));
+
+        assertNotNull(generated.token());
+
+        TokenValidationResult result =
+                customProvider.validate(generated.token());
+
+        assertTrue(result.valid());
+        assertEquals("user_1", result.subject());
+        assertNotNull(result.expiresAt());
+    }
+
+    @Test
+    void shouldRejectJwtTokenWithIncorrectIssuer() {
+        final String issuer = "myapp";
+
+        JwtProperties otherProps = new JwtProperties();
+        otherProps.setSecret("another-very-long-secret-key-123456");
+        otherProps.setIssuer(issuer);
+
+        JwtTokenProvider customProvider = new JwtTokenProvider(otherProps);
+
+        GeneratedToken generated = customProvider
+                .generateToken("user_1", builder -> builder.issuer("notissuer"));
+
+        assertNotNull(generated.token());
+
+        TokenValidationResult result =
+                customProvider.validate(generated.token());
+
+        assertFalse(result.valid());
+        assertNull(result.subject());
+        assertNull(result.expiresAt());
+    }
+
+    @Test
     void shouldRejectExpiredToken() throws InterruptedException {
         JwtProperties props = new JwtProperties();
         props.setSecret("example-of-long-jwt-secret-in-properties");
