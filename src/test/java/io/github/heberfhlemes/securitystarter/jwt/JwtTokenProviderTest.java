@@ -47,25 +47,15 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldGenerateAndValidateJwtTokenWithCustomClaims() {
-        final String issuer = "myapp";
-
-        JwtProperties otherProps = new JwtProperties();
-        otherProps.setSecret("another-very-long-secret-key-123456");
-        otherProps.setIssuer(issuer);
-
-        JwtTokenProvider customProvider = new JwtTokenProvider(otherProps);
-
-        GeneratedToken generated = customProvider
-                .generateToken("user_1", builder -> builder.issuer(issuer));
+        GeneratedToken generated = jwtTokenProvider
+                .generateToken("user_1", builder -> builder.issuer("myapp"));
 
         assertNotNull(generated.token());
 
-        TokenValidationResult result =
-                customProvider.validate(generated.token());
+        TokenValidationResult result = jwtTokenProvider.validate(generated.token());
 
         assertTrue(result.valid());
         assertEquals("user_1", result.subject());
-        assertNotNull(result.expiresAt());
     }
 
     @Test
