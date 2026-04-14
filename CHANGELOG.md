@@ -5,6 +5,7 @@
   * [[0.3.1] - 2026-04-14](#031---2026-04-14)
     * [Changed](#changed)
     * [Added](#added)
+    * [Deprecated](#deprecated)
   * [[0.3.0] - 2026-02-11](#030---2026-02-11)
     * [Breaking Changes](#breaking-changes)
     * [Changed](#changed-1)
@@ -29,7 +30,6 @@
 
 ### Changed
 
-* Marked `TokenAuthenticationService` as deprecated
 * Replaced default `PasswordEncoder` from `BCryptPasswordEncoder` to `DelegatingPasswordEncoder`
 * Extended `JwtTokenProvider` with support for custom claims during token generation
 * Added optional issuer claim support in `JwtProperties`
@@ -38,6 +38,10 @@
 ### Added
 
 * Overloaded `generateToken` method in `JwtTokenProvider` allowing custom JWT claims via `JwtBuilder`
+
+### Deprecated
+
+* Marked `TokenAuthenticationService` as deprecated
 
 ## [0.3.0] - 2026-02-11
 

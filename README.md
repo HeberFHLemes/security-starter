@@ -6,9 +6,7 @@ JWT-based stateless authentication for Spring Boot
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.heberfhlemes/security-starter)](https://search.maven.org/artifact/io.github.heberfhlemes/security-starter)
 ![License](https://img.shields.io/github/license/HeberFHLemes/security-starter)
 
-A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication.
-
-This library is designed to **abstract JWT authentication logic** while keeping your application modular and decoupled 
+A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication. It **abstracts JWT authentication logic**, while keeping your application modular and decoupled 
 from infrastructure.
 
 ---
@@ -18,7 +16,6 @@ from infrastructure.
 - Spring Boot 4.x
 - Spring Security (`spring-boot-starter-security`)
 - Spring Web (`spring-boot-starter-web`)
-- Do not expose user passwords
 
 > **Note:** The starter relies on Spring Security and a runtime implementation of the Jakarta Servlet API (usually included via Spring Web).
 
@@ -32,7 +29,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
   <groupId>io.github.heberfhlemes</groupId>
   <artifactId>security-starter</artifactId>
-  <version>0.3.0</version>
+  <version>0.3.1</version>
 </dependency>
 ```
 
@@ -47,6 +44,7 @@ securitystarter:
   jwt:
     secret: ${JWT_SECRET}
     expiration: 720000 # in milliseconds
+    issuer: # optional JWT "iss" (issuer) claim
 ```
 
 #### SecurityConfigurationSupport
@@ -130,8 +128,7 @@ public class AuthService {
 ---
 
 ### Overriding Beans
-All core beans are declared with `@ConditionalOnMissingBean`, allowing you to provide 
-custom implementations:
+All core Spring beans are declared with `@ConditionalOnMissingBean`, allowing full customization:
 
 - `PasswordEncoder`
 - `TokenProvider`
@@ -140,6 +137,15 @@ custom implementations:
 
 This starter provides token-based authentication infrastructure only and does not include
 authentication controllers, route definitions, or user persistence.
+
+---
+
+### JWT Notes
+
+- Tokens are signed using HS256
+- Secret key must be at least 32 bytes
+- Expiration is enforced during validation
+- Issuer validation is optional but recommended
 
 ---
 
