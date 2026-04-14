@@ -1,15 +1,26 @@
+/*
+ * Copyright 2025 Héber F. H. Lemes
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**
- * Application layer components responsible for JWT generation,
- * validation, and token-related data transfer structures.
+ * Public API for JWT token generation and validation results.
  *
- * <p>This package contains abstractions and implementations
- * that encapsulate token handling logic without exposing
- * infrastructure-specific details to upper layers.</p>
+ * <p>
+ * This package contains immutable data structures used to represent
+ * generated tokens and validation outcomes.
+ * </p>
  *
- * <p>The goal is to keep token management cohesive,
- * testable, and independent from web or persistence concerns.</p>
- *
- * @apiNote Tokens are stateless and must not contain sensitive domain data.
  * @since 0.3.0
  */
 package io.github.heberfhlemes.securitystarter.application.token;

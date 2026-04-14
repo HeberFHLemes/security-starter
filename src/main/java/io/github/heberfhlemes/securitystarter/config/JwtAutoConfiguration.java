@@ -1,8 +1,22 @@
+/*
+ * Copyright 2025 Héber F. H. Lemes
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.heberfhlemes.securitystarter.config;
 
 import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-import io.github.heberfhlemes.securitystarter.application.services.TokenAuthenticationService;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
@@ -35,8 +49,6 @@ import org.springframework.security.web.SecurityFilterChain;
  *       Spring Security {@link org.springframework.security.core.Authentication}.</li>
  *   <li>{@link JwtAuthenticationFilter} — a stateless security filter that extracts
  *       and validates JWTs from incoming requests.</li>
- *   <li>{@link TokenAuthenticationService} — a simple facade for token operations,
- *       intended for use in controllers or application services.</li>
  * </ul>
  *
  * <p>
@@ -127,28 +139,5 @@ public class JwtAutoConfiguration {
             TokenProvider tokenProvider,
             JwtAuthenticationConverter converter) {
         return new JwtAuthenticationFilter(tokenProvider, converter);
-    }
-
-    /**
-     * Provides a simple token-based authentication service facade.
-     *
-     * <p>
-     * This service is intended for use in controllers or application services
-     * to generate and validate tokens without directly interacting with the
-     * underlying {@link TokenProvider}.
-     * </p>
-     *
-     * <p>
-     * In this starter, the default implementation is backed by a JWT-based
-     * {@link TokenProvider}.
-     * </p>
-     *
-     * @param tokenProvider the token provider implementation
-     * @return a token authentication service
-     */
-    @Bean
-    @ConditionalOnMissingBean(TokenAuthenticationService.class)
-    public TokenAuthenticationService tokenAuthenticationService(TokenProvider tokenProvider) {
-        return new TokenAuthenticationService(tokenProvider);
     }
 }

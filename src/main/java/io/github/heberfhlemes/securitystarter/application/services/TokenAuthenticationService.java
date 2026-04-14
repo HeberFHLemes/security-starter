@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 Héber F. H. Lemes
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.heberfhlemes.securitystarter.application.services;
 
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
@@ -20,9 +35,11 @@ import org.springframework.security.core.userdetails.UserDetails;
  * may supply their own {@link TokenProvider} or choose not to use this service at all.
  * </p>
  *
+ * @deprecated since 0.3.1, use {@link TokenProvider} implementations directly.
  * @author Héber F. H. Lemes
  * @since 0.1.0
  */
+@Deprecated(since = "0.3.1")
 public final class TokenAuthenticationService {
 
     private final TokenProvider tokenProvider;

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 Héber F. H. Lemes
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.heberfhlemes.securitystarter.jwt;
 
 import io.github.heberfhlemes.securitystarter.application.token.GeneratedToken;
@@ -43,6 +58,42 @@ class JwtTokenProviderTest {
         assertTrue(result.valid());
         assertEquals("user_1", result.subject());
         assertNotNull(result.expiresAt());
+    }
+
+    @Test
+    void shouldGenerateAndValidateJwtTokenWithCustomClaims() {
+        GeneratedToken generated = jwtTokenProvider
+                .generateToken("user_1", builder -> builder.issuer("myapp"));
+
+        assertNotNull(generated.token());
+
+        TokenValidationResult result = jwtTokenProvider.validate(generated.token());
+
+        assertTrue(result.valid());
+        assertEquals("user_1", result.subject());
+    }
+
+    @Test
+    void shouldRejectJwtTokenWithIncorrectIssuer() {
+        final String issuer = "myapp";
+
+        JwtProperties otherProps = new JwtProperties();
+        otherProps.setSecret("another-very-long-secret-key-123456");
+        otherProps.setIssuer(issuer);
+
+        JwtTokenProvider customProvider = new JwtTokenProvider(otherProps);
+
+        GeneratedToken generated = customProvider
+                .generateToken("user_1", builder -> builder.issuer("notissuer"));
+
+        assertNotNull(generated.token());
+
+        TokenValidationResult result =
+                customProvider.validate(generated.token());
+
+        assertFalse(result.valid());
+        assertNull(result.subject());
+        assertNull(result.expiresAt());
     }
 
     @Test
