@@ -127,7 +127,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             Authentication authentication =
-                    authenticationConverter.convert(token, result.subject());
+                    authenticationConverter.convert(result);
 
             if (authentication != null) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
