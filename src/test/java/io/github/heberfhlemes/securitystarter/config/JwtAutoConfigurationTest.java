@@ -55,10 +55,6 @@ class JwtAutoConfigurationTest {
     @Test
     void shouldRegisterJwtBeans() {
         withValidJwtProperties()
-                .withBean(
-                        UserDetailsService.class,
-                        () -> Mockito.mock(UserDetailsService.class)
-                )
                 .run(context -> {
                     assertThat(context).hasSingleBean(TokenProvider.class);
                     assertThat(context).hasSingleBean(OncePerRequestFilter.class);
@@ -72,10 +68,6 @@ class JwtAutoConfigurationTest {
         TokenProvider userProvided = Mockito.mock(TokenProvider.class);
 
         withValidJwtProperties()
-                .withBean(
-                        UserDetailsService.class,
-                        () -> Mockito.mock(UserDetailsService.class)
-                )
                 .withBean(TokenProvider.class, () -> userProvided)
                 .run(context -> {
                     assertThat(context).hasSingleBean(TokenProvider.class);
@@ -105,7 +97,6 @@ class JwtAutoConfigurationTest {
                         "securitystarter.jwt.secret=short-secret",
                         "securitystarter.jwt.expiration=PT1H"
                 )
-                .withBean(UserDetailsService.class, () -> Mockito.mock(UserDetailsService.class))
                 .run(context -> {
                     Throwable failure = context.getStartupFailure();
 
