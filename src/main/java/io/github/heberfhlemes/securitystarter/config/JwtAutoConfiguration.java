@@ -19,17 +19,18 @@ import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticatio
 import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
 import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.UserDetailsJwtAuthenticationConverter;
 import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.List;
 
 /**
  * Auto-configuration for JWT-based stateless authentication.
@@ -44,7 +45,7 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * <p>This configuration provides the following default beans:</p>
  * <ul>
- *   <li>{@link TokenProvider} — JWT-based token generation and validation.</li>
+ *   <li>{@link JwtTokenProvider} — JWT-based token generation and validation.</li>
  *   <li>{@link JwtAuthenticationConverter} — converts a validated token into a
  *       Spring Security {@link org.springframework.security.core.Authentication}.</li>
  *   <li>{@link JwtAuthenticationFilter} — a stateless security filter that extracts
@@ -57,23 +58,15 @@ import org.springframework.security.web.SecurityFilterChain;
  * </p>
  *
  * <p>
- * The application must supply a {@link UserDetailsService}, which is used by the
- * default {@link JwtAuthenticationConverter} to load user details when a valid
- * token is detected.
- * </p>
- *
- * <p>
- * This configuration is applied <strong>after</strong>
- * {@link CoreSecurityAutoConfiguration} and is activated automatically when
+ * This configuration is activated automatically when
  * {@link SecurityFilterChain} is present on the classpath and
  * {@link JwtProperties} is enabled.
  * </p>
  *
  * @author Héber F. H. Lemes
- * @see CoreSecurityAutoConfiguration
  * @since 0.1.0
  */
-@AutoConfiguration(after = CoreSecurityAutoConfiguration.class)
+@AutoConfiguration
 @ConditionalOnClass(SecurityFilterChain.class)
 @EnableConfigurationProperties(JwtProperties.class)
 public class JwtAutoConfiguration {
@@ -91,14 +84,13 @@ public class JwtAutoConfiguration {
      * @return a JWT-based {@link TokenProvider}
      */
     @Bean
-    @ConditionalOnMissingBean(TokenProvider.class)
-    public TokenProvider tokenProvider(JwtProperties properties) {
+    @ConditionalOnMissingBean({JwtTokenProvider.class, TokenProvider.class})
+    public JwtTokenProvider jwtTokenProvider(JwtProperties properties) {
         return new JwtTokenProvider(properties);
     }
 
     /**
-     * Creates a default {@link JwtAuthenticationConverter} backed by a
-     * {@link UserDetailsService}.
+     * Creates a default {@link JwtAuthenticationConverter}
      *
      * <p>
      * This converter is responsible for transforming a validated JWT into a
@@ -106,20 +98,13 @@ public class JwtAutoConfiguration {
      * instance.
      * </p>
      *
-     * <p>
-     * This bean is only created if a {@link UserDetailsService} is present in the
-     * application context.
-     * </p>
-     *
-     * @param userDetailsService the service used to load user details from the token subject
-     * @return a JWT authentication converter based on {@link UserDetailsService}
+     * @return a JWT authentication converter based on {@link UsernamePasswordAuthenticationToken}
      */
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean(UserDetailsService.class)
-    public JwtAuthenticationConverter jwtAuthenticationConverter(
-            UserDetailsService userDetailsService) {
-        return new UserDetailsJwtAuthenticationConverter(userDetailsService);
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        return subject -> new UsernamePasswordAuthenticationToken(
+                subject, null, List.of());
     }
 
     /**

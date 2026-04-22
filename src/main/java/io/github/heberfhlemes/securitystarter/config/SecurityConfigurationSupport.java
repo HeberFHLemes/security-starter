@@ -42,7 +42,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * @author Héber F. H. Lemes
  * @since 0.1.0
+ * @deprecated use {@link JwtSecurityConfigurer} instead
  */
+@Deprecated(since = "0.3.2", forRemoval = true)
 public abstract class SecurityConfigurationSupport {
 
     /**
