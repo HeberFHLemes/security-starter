@@ -15,6 +15,8 @@
  */
 package io.github.heberfhlemes.securitystarter.application.ports;
 
+import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -27,19 +29,15 @@ import org.springframework.security.core.Authentication;
  * @author Héber F. H. Lemes
  * @since 0.2.0
  */
+@FunctionalInterface
 public interface JwtAuthenticationConverter {
     /**
-     * Converts a validated JWT token and its subject into a Spring Security
-     * {@link Authentication} instance.
+     * Converts a defined subject into a Spring Security {@link Authentication} instance.
      *
-     * <p>The returned authentication is expected to be fully authenticated
-     * and suitable for storage in the {@link org.springframework.security.core.context.SecurityContext}.</p>
-     *
-     * @param token   the raw JWT token
-     * @param subject the subject extracted from the token (usually the username)
+     * @param tokenValidationResult the result obtained from validating a token.
      * @return an authenticated {@link Authentication} instance, or {@code null}
      * if the token cannot be converted
-     * @since 0.2.0
+     * @since 0.3.2
      */
-    Authentication convert(String token, String subject);
+    Authentication convert(@NonNull TokenValidationResult tokenValidationResult);
 }
