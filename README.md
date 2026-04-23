@@ -1,4 +1,4 @@
-# Security Starter
+# security-starter
 
 JWT-based stateless authentication for Spring Boot
 
@@ -7,8 +7,8 @@ JWT-based stateless authentication for Spring Boot
 ![License](https://img.shields.io/github/license/HeberFHLemes/security-starter)
 
 A Spring Boot starter to simplify **Spring Security configuration** for JWT-based stateless authentication.
-It **abstracts JWT authentication logic**, while keeping your application modular and decoupled
-from infrastructure.
+It abstracts JWT authentication logic, reducing boilerplate code and offering some interfaces to guide the
+implementation.
 
 ---
 
@@ -29,7 +29,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>io.github.heberfhlemes</groupId>
     <artifactId>security-starter</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2</version>
 </dependency>
 ```
 
@@ -49,62 +49,45 @@ securitystarter:
     issuer: # optional JWT "iss" (issuer) claim
 ```
 
-### SecurityConfigurationSupport
+### JwtSecurityConfigurer
 
-This is entirely optional. You can extend SecurityConfigurationSupport to define route authorization policies
-while reusing common security configuration logic.
+You can use this utility class in your security configuration to set your authentication flow to stateless, applying a
+filter.
 
 ```java
 @Configuration
 @EnableWebSecurity
-public class AppSecurityConfig extends SecurityConfigurationSupport {
-
-    @Override
-    protected void configureAuthorization(
-            AuthorizeHttpRequestsConfigurer<HttpSecurity>
-                    .AuthorizationManagerRequestMatcherRegistry auth) {
-        auth
-                .requestMatchers("/public/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated();
-    }
+public class AppSecurityConfig {
+    
+    private final JwtAuthenticationFilter jwtFilter;
+    
+    // ...
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            JwtAuthenticationFilter jwtFilter
-    ) throws Exception {
-        configureCommonSecurity(http, jwtFilter); // from SecurityConfigurationSupport
-        configureAuthorization(http.authorizeHttpRequests());
-        return http.build();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        JwtSecurityConfigurer.applyTo(http, jwtFilter);
+
+        return http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .build();
     }
 }
 ```
 
-### Creating a custom UserDetailsService implementation
+### Disabling UserDetailsServiceAutoConfiguration
 
 ```java
-@Service
-public class CustomUserDetailsService implements UserDetailsService {
-
-    private final UserRepository userRepository;
-
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        return new UserPrincipal(user); // implements UserDetails
+@SpringBootApplication(exclude = {UserDetailsServiceAutoConfiguration.class})
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
     }
 }
 ```
 
-### Using TokenProvider
+### Using a TokenProvider implementation
 
 Generate and validate tokens:
 
@@ -112,15 +95,25 @@ Generate and validate tokens:
 @Service
 public class AuthService {
 
-    private final TokenProvider tokenProvider;
+    private final JwtTokenProvider tokenProvider;
+
+    // ...
 
     public AuthResponse login(LoginRequest request) {
-        User user = authenticateUser(request);
-        GeneratedToken token = tokenProvider.generateToken(user.getEmail());
+        User user = findUser(request);
+        GeneratedToken token = tokenProvider.generateToken(
+                userSubject, // your token subject
+                jwtBuilder -> jwtBuilder // custom claims
+                        .issuer("...")
+                        .claim("role", "...")
+        );
         return AuthResponse.from(token);
     }
-
+    
     public void validateToken(String tokenString) {
+        // Already done inside the JWT filter.
+        // Use when you want a custom filter implementation 
+        // or additional validation logic.
         TokenValidationResult result = tokenProvider.validate(tokenString);
         if (!result.valid()) {
             throw new InvalidTokenException("Token validation failed");
@@ -129,24 +122,39 @@ public class AuthService {
 }
 ```
 
+### Receiving authenticated user
+
+```java
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    private final UserService userService;
+
+    // ...
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(
+            @AuthenticationPrincipal Object principal
+    ) {
+        UUID id = UUID.fromString(principal.toString());
+        return ResponseEntity.ok(UserResponse.from(userService.findById(id)));
+    }
+}
+```
+
 ---
 
-## Overriding Beans
+## Overriding beans
 
-All core Spring beans are declared with `@ConditionalOnMissingBean`, allowing full customization:
+All beans are declared with `@ConditionalOnMissingBean`, allowing full customization:
 
-- `PasswordEncoder`
-- `TokenProvider`
+- `JwtTokenProvider`
 - `JwtAuthenticationConverter`
 - `JwtAuthenticationFilter`
-
-This starter provides authentication infrastructure only.
-It does not include controllers, route definitions, or user persistence.
 
 ---
 
 ## License
 
-This project is licensed under [Apache License, Version 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html)
+This project is licensed under [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
 
 See [LICENSE](LICENSE) file for details.

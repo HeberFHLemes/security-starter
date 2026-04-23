@@ -103,8 +103,8 @@ public class JwtAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        return subject -> new UsernamePasswordAuthenticationToken(
-                subject, null, List.of());
+        return token -> new UsernamePasswordAuthenticationToken(
+                token.subject(), null, List.of());
     }
 
     /**

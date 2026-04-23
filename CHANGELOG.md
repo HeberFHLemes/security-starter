@@ -2,18 +2,22 @@
 
 <!-- TOC -->
 * [Changelog](#changelog)
-  * [[0.3.1] - 2026-04-14](#031---2026-04-14)
+  * [[Unreleased]](#unreleased)
     * [Changed](#changed)
-    * [Added](#added)
     * [Deprecated](#deprecated)
     * [Removed](#removed)
+  * [[0.3.1] - 2026-04-14](#031---2026-04-14)
+    * [Changed](#changed-1)
+    * [Added](#added)
+    * [Deprecated](#deprecated-1)
+    * [Removed](#removed-1)
   * [[0.3.0] - 2026-02-11](#030---2026-02-11)
     * [Breaking Changes](#breaking-changes)
-    * [Changed](#changed-1)
+    * [Changed](#changed-2)
     * [Added](#added-1)
   * [[0.2.0] - 2026-01-28](#020---2026-01-28)
     * [Breaking Changes](#breaking-changes-1)
-    * [Changed](#changed-2)
+    * [Changed](#changed-3)
     * [Added](#added-2)
     * [Fixed](#fixed)
     * [Internal](#internal)
@@ -24,6 +28,30 @@
   * [[0.1.0] - 2025-12-21](#010---2025-12-21)
     * [Added](#added-4)
 <!-- TOC -->
+
+---
+
+## [Unreleased]
+
+### Changed
+
+* `JwtAuthenticationConverter` as a functional interface
+* `TokenValidationResult` as the parameter of the `JwtAuthenticationConverter` method
+* `TokenProvider` bean changed to `JwtTokenProvider`
+* `UserDetailsService` implementation not needed
+* `AuthenticationManager` manipulation not needed
+* Stateless authentication flow
+
+### Deprecated
+
+* Marked `SecurityConfigurationSupport` class as deprecated and to be removed 
+(use `JwtSecurityConfigurer` static method instead)
+
+### Removed
+
+* `JwtAuthenticationConverter` default implementation `UserDetailsJwtAuthenticationConverter`
+* `PasswordEncoder` bean and `CoreSecurityAutoConfiguration` class
+* `TokenAuthenticationService` (already deprecated) class
 
 ---
 

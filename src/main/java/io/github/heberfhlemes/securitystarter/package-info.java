@@ -39,10 +39,6 @@
  * <strong>Dependencies:</strong> Applications must include Spring Security
  * ({@code spring-boot-starter-security}) and a runtime implementation of the
  * {@link jakarta.servlet.Servlet} API (e.g., via {@code spring-boot-starter-web}).
- * Required Spring Security classes include
- * {@link org.springframework.security.web.SecurityFilterChain} and
- * {@link org.springframework.security.core.userdetails.UserDetailsService}.
- * </p>
  *
  * <p>
  * All components are optional and fully replaceable: applications can provide

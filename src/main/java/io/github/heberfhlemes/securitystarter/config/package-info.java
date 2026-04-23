@@ -18,9 +18,8 @@
  * <p>
  * This package provides:
  * <ul>
- *   <li>Core security infrastructure auto-configuration</li>
  *   <li>JWT authentication auto-configuration</li>
- *   <li>Extension base class for user-defined SecurityFilterChain configuration</li>
+ *   <li>Base JWT security configuration utility class</li>
  * </ul>
  *
  * @since 0.1.0

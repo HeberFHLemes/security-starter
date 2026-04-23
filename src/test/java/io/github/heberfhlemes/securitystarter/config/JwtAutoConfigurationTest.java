@@ -80,7 +80,6 @@ class JwtAutoConfigurationTest {
     void failsWhenSecretIsMissing() {
         contextRunner
                 .withPropertyValues("securitystarter.jwt.expiration=PT1H")
-                .withBean(UserDetailsService.class, () -> Mockito.mock(UserDetailsService.class))
                 .run(context -> {
                     Throwable failure = context.getStartupFailure();
 
