@@ -2,7 +2,7 @@
 
 <!-- TOC -->
 * [Changelog](#changelog)
-  * [[Unreleased]](#unreleased)
+  * [[0.3.2] - 2026-04-23](#032---2026-04-23)
     * [Changed](#changed)
     * [Deprecated](#deprecated)
     * [Removed](#removed)
@@ -31,7 +31,7 @@
 
 ---
 
-## [Unreleased]
+## [0.3.2] - 2026-04-23
 
 ### Changed
 
