@@ -60,9 +60,7 @@ filter.
 public class AppSecurityConfig {
     
     private final JwtAuthenticationFilter jwtFilter;
-    
-    // ...
-
+    //...
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         JwtSecurityConfigurer.applyTo(http, jwtFilter);
@@ -96,9 +94,7 @@ Generate and validate tokens:
 public class AuthService {
 
     private final JwtTokenProvider tokenProvider;
-
     // ...
-
     public AuthResponse login(LoginRequest request) {
         User user = findUser(request);
         GeneratedToken token = tokenProvider.generateToken(
@@ -129,7 +125,6 @@ public class AuthService {
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
-
     // ...
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(

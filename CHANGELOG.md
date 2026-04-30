@@ -2,6 +2,7 @@
 
 <!-- TOC -->
 * [Changelog](#changelog)
+  * [[Unreleased]](#unreleased)
   * [[0.3.2] - 2026-04-23](#032---2026-04-23)
     * [Changed](#changed)
     * [Deprecated](#deprecated)
@@ -31,6 +32,10 @@
 
 ---
 
+## [Unreleased]
+
+---
+
 ## [0.3.2] - 2026-04-23
 
 ### Changed
@@ -44,8 +49,8 @@
 
 ### Deprecated
 
-* Marked `SecurityConfigurationSupport` class as deprecated and to be removed 
-(use `JwtSecurityConfigurer` static method instead)
+* Marked `SecurityConfigurationSupport` class as deprecated and to be removed
+  (use `JwtSecurityConfigurer` static method instead)
 
 ### Removed
 
