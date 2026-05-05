@@ -14,36 +14,36 @@
  * limitations under the License.
  */
 /**
- * A Spring Boot starter providing modular JWT-based authentication.
+ * A Spring Boot starter providing JWT-based stateless authentication.
  *
  * <p>
- * This library offers stateless, modular authentication support based on JWT tokens,
- * designed according to hexagonal architecture principles to keep application code
- * decoupled from infrastructure concerns.
+ * This library reduces boilerplate for securing Spring Boot applications
+ * with JWT tokens, offering sensible defaults while remaining fully customizable.
  * </p>
  *
- * <p>Main modules include:</p>
+ * <h2>Getting started</h2>
+ * <ol>
+ *   <li>Enable JWT support: {@code securitystarter.jwt.enabled=true}</li>
+ *   <li>Configure the secret and expiration under {@code securitystarter.jwt.*}</li>
+ *   <li>Apply the minimal security configuration using
+ *       {@link io.github.heberfhlemes.securitystarter.web.JwtSecurityConfigurer}</li>
+ * </ol>
+ *
+ * <h2>Key abstractions</h2>
  * <ul>
- *     <li>{@link io.github.heberfhlemes.securitystarter.config} — auto-configuration classes
- *         and helper base class for HTTP security.</li>
- *     <li>{@link io.github.heberfhlemes.securitystarter.application} — application-layer services
- *         and ports for token management.</li>
- *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.jwt} — low-level JWT token
- *         services.</li>
- *     <li>{@link io.github.heberfhlemes.securitystarter.infrastructure.filters} — stateless
- *         authentication filters integrated with Spring Security.</li>
- *     <li>{@link io.github.heberfhlemes.securitystarter.properties} — Configuration properties needed.</li>
+ *   <li>{@link io.github.heberfhlemes.securitystarter.core.TokenProvider} —
+ *       generates and validates tokens</li>
+ *   <li>{@link io.github.heberfhlemes.securitystarter.core.TokenAuthenticationConverter} —
+ *       converts a validated token into a Spring Security {@code Authentication}</li>
  * </ul>
  *
+ * <h2>Requirements</h2>
  * <p>
- * <strong>Dependencies:</strong> Applications must include Spring Security
- * ({@code spring-boot-starter-security}) and a runtime implementation of the
- * {@link jakarta.servlet.Servlet} API (e.g., via {@code spring-boot-starter-web}).
- *
- * <p>
- * All components are optional and fully replaceable: applications can provide
- * their own beans, services, or filters as needed.
+ * Requires {@code spring-boot-starter-security} and a Jakarta Servlet API
+ * implementation (e.g. {@code spring-boot-starter-web}).
  * </p>
+ *
+ * <p>All beans are conditional and fully replaceable.</p>
  *
  * @since 0.1.0
  */
