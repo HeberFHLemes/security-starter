@@ -3,36 +3,60 @@
 <!-- TOC -->
 * [Changelog](#changelog)
   * [[Unreleased]](#unreleased)
-  * [[0.3.2] - 2026-04-23](#032---2026-04-23)
-    * [Changed](#changed)
-    * [Deprecated](#deprecated)
-    * [Removed](#removed)
-  * [[0.3.1] - 2026-04-14](#031---2026-04-14)
-    * [Changed](#changed-1)
-    * [Added](#added)
-    * [Deprecated](#deprecated-1)
-    * [Removed](#removed-1)
-  * [[0.3.0] - 2026-02-11](#030---2026-02-11)
     * [Breaking Changes](#breaking-changes)
+    * [Changed](#changed)
+    * [Added](#added)
+    * [Removed](#removed)
+  * [[0.3.2] - 2026-04-23](#032---2026-04-23)
+    * [Changed](#changed-1)
+    * [Deprecated](#deprecated)
+    * [Removed](#removed-1)
+  * [[0.3.1] - 2026-04-14](#031---2026-04-14)
     * [Changed](#changed-2)
     * [Added](#added-1)
-  * [[0.2.0] - 2026-01-28](#020---2026-01-28)
+    * [Deprecated](#deprecated-1)
+    * [Removed](#removed-2)
+  * [[0.3.0] - 2026-02-11](#030---2026-02-11)
     * [Breaking Changes](#breaking-changes-1)
     * [Changed](#changed-3)
     * [Added](#added-2)
+  * [[0.2.0] - 2026-01-28](#020---2026-01-28)
+    * [Breaking Changes](#breaking-changes-2)
+    * [Changed](#changed-4)
+    * [Added](#added-3)
     * [Fixed](#fixed)
     * [Internal](#internal)
   * [[0.1.1] - 2025-12-24](#011---2025-12-24)
-    * [Added](#added-3)
+    * [Added](#added-4)
     * [Fixed](#fixed-1)
     * [Internal](#internal-1)
   * [[0.1.0] - 2025-12-21](#010---2025-12-21)
-    * [Added](#added-4)
+    * [Added](#added-5)
 <!-- TOC -->
 
 ---
 
 ## [Unreleased]
+
+### Breaking Changes
+
+* Restructured package organization into: `autoconfigure`, `core`, `jwt`, `properties`, and `web`.
+
+### Changed
+
+* Changed `JwtAuthenticationConverter` to `TokenAuthenticationConverter` functional interface
+* `JwtAutoConfiguration` conditional on `securitystarter.jwt.enabled`
+* Upgraded Spring Boot to 4.0.6.
+
+### Added
+
+* Factory methods in `TokenAuthenticationConverters` to simplify common converter creation
+* `TokenClaims` abstraction for token claims access and its default implementation `JwtTokenClaims`
+* `enabled` flag in `JwtProperties` (`securitystarter.jwt.enabled`) to allow conditional activation
+
+### Removed
+
+* Deprecated class `SecurityConfigurationSupport`
 
 ---
 
