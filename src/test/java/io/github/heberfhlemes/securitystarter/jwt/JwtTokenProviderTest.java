@@ -15,9 +15,8 @@
  */
 package io.github.heberfhlemes.securitystarter.jwt;
 
-import io.github.heberfhlemes.securitystarter.application.token.GeneratedToken;
-import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
+import io.github.heberfhlemes.securitystarter.core.GeneratedToken;
+import io.github.heberfhlemes.securitystarter.core.TokenValidationResult;
 import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

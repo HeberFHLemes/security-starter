@@ -15,10 +15,11 @@
  */
 package io.github.heberfhlemes.securitystarter.filters;
 
-import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
-import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
-import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
+import io.github.heberfhlemes.securitystarter.core.TokenAuthenticationConverter;
+import io.github.heberfhlemes.securitystarter.core.TokenClaims;
+import io.github.heberfhlemes.securitystarter.core.TokenProvider;
+import io.github.heberfhlemes.securitystarter.core.TokenValidationResult;
+import io.github.heberfhlemes.securitystarter.web.JwtAuthenticationFilter;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,13 +43,13 @@ import static org.mockito.Mockito.when;
 class JwtAuthenticationFilterTest {
 
     private TokenProvider tokenProvider;
-    private JwtAuthenticationConverter converter;
+    private TokenAuthenticationConverter converter;
     private JwtAuthenticationFilter filter;
 
     @BeforeEach
     void setup() {
         tokenProvider = mock(TokenProvider.class);
-        converter = mock(JwtAuthenticationConverter.class);
+        converter = mock(TokenAuthenticationConverter.class);
         filter = new JwtAuthenticationFilter(tokenProvider, converter);
         SecurityContextHolder.clearContext();
     }
@@ -57,7 +58,12 @@ class JwtAuthenticationFilterTest {
     void shouldAuthenticateValidToken() throws Exception {
         String token = "valid.jwt.token";
         String username = "user_1";
-        TokenValidationResult result = new TokenValidationResult(true, username, Instant.now().plusSeconds(600));
+        TokenValidationResult result = new TokenValidationResult(
+                true,
+                username,
+                Instant.now().plusSeconds(600),
+                TokenClaims.empty()
+        );
 
         when(tokenProvider.validate(token)).thenReturn(result);
         when(converter.convert(result)).thenReturn(
@@ -79,7 +85,12 @@ class JwtAuthenticationFilterTest {
     @Test
     void shouldNotAuthenticateWhenConverterReturnsNull() throws Exception {
         String token = "valid.jwt.token";
-        TokenValidationResult result = new TokenValidationResult(true, "user_1", Instant.now().plusSeconds(600));
+        TokenValidationResult result = new TokenValidationResult(
+                true,
+                "user_1",
+                Instant.now().plusSeconds(600),
+                TokenClaims.empty()
+        );
 
         when(tokenProvider.validate(token)).thenReturn(result);
         when(converter.convert(result)).thenReturn(null);
@@ -99,7 +110,7 @@ class JwtAuthenticationFilterTest {
         String token = "invalid.jwt.token";
 
         when(tokenProvider.validate(token))
-                .thenReturn(new TokenValidationResult(false, null, null));
+                .thenReturn(TokenValidationResult.buildInvalid());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer " + token);
@@ -118,7 +129,7 @@ class JwtAuthenticationFilterTest {
         String token = "jwt.without.subject";
 
         when(tokenProvider.validate(token))
-                .thenReturn(new TokenValidationResult(true, null, null));
+                .thenReturn(new TokenValidationResult(true, null, null, TokenClaims.empty()));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer " + token);

@@ -15,19 +15,21 @@
  */
 package io.github.heberfhlemes.securitystarter.config;
 
-import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-import io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider;
-
+import io.github.heberfhlemes.securitystarter.autoconfigure.JwtAutoConfiguration;
+import io.github.heberfhlemes.securitystarter.core.TokenAuthenticationConverter;
+import io.github.heberfhlemes.securitystarter.core.TokenAuthenticationConverters;
+import io.github.heberfhlemes.securitystarter.core.TokenProvider;
+import io.github.heberfhlemes.securitystarter.jwt.JwtTokenProvider;
+import io.github.heberfhlemes.securitystarter.web.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class JwtAutoConfigurationTest {
 
@@ -37,7 +39,8 @@ class JwtAutoConfigurationTest {
     private ApplicationContextRunner withValidJwtProperties() {
         return contextRunner.withPropertyValues(
                 "securitystarter.jwt.secret=example-of-long-jwt-secret-in-properties",
-                "securitystarter.jwt.expiration=PT1H"
+                "securitystarter.jwt.expiration=PT1H",
+                "securitystarter.jwt.enabled=true"
         );
     }
 
@@ -46,8 +49,8 @@ class JwtAutoConfigurationTest {
         contextRunner
                 .withClassLoader(new FilteredClassLoader(SecurityFilterChain.class))
                 .run(context -> {
-                    assertThat(context).doesNotHaveBean(TokenProvider.class);
-                    assertThat(context).doesNotHaveBean(OncePerRequestFilter.class);
+                    assertThat(context).doesNotHaveBean(JwtTokenProvider.class);
+                    assertThat(context).doesNotHaveBean(JwtAuthenticationFilter.class);
                 });
     }
 
@@ -55,22 +58,34 @@ class JwtAutoConfigurationTest {
     void shouldRegisterJwtBeans() {
         withValidJwtProperties()
                 .run(context -> {
-                    assertThat(context).hasSingleBean(TokenProvider.class);
-                    assertThat(context).hasSingleBean(OncePerRequestFilter.class);
-                    assertThat(context.getBean(TokenProvider.class))
-                            .isInstanceOf(JwtTokenProvider.class);
+                    assertThat(context).hasSingleBean(JwtTokenProvider.class);
+                    assertThat(context).hasSingleBean(JwtAuthenticationFilter.class);
                 });
     }
 
     @Test
     void shouldNotOverrideUserProvidedTokenProvider() {
-        TokenProvider userProvided = Mockito.mock(TokenProvider.class);
+        TokenProvider userProvided = mock(TokenProvider.class);
 
         withValidJwtProperties()
                 .withBean(TokenProvider.class, () -> userProvided)
                 .run(context -> {
                     assertThat(context).hasSingleBean(TokenProvider.class);
+                    assertThat(context).doesNotHaveBean(JwtTokenProvider.class);
                     assertThat(context.getBean(TokenProvider.class))
+                            .isSameAs(userProvided);
+                });
+    }
+
+    @Test
+    void shouldNotOverrideUserProvidedConverter() {
+        TokenAuthenticationConverter userProvided = mock(TokenAuthenticationConverter.class);
+
+        withValidJwtProperties()
+                .withBean(TokenAuthenticationConverter.class, () -> userProvided)
+                .run(context -> {
+                    assertThat(context).hasSingleBean(TokenAuthenticationConverter.class);
+                    assertThat(context.getBean(TokenAuthenticationConverter.class))
                             .isSameAs(userProvided);
                 });
     }
@@ -78,7 +93,7 @@ class JwtAutoConfigurationTest {
     @Test
     void failsWhenSecretIsMissing() {
         contextRunner
-                .withPropertyValues("securitystarter.jwt.expiration=PT1H")
+                .withPropertyValues("securitystarter.jwt.enabled=true", "securitystarter.jwt.expiration=PT1H")
                 .run(context -> {
                     Throwable failure = context.getStartupFailure();
 
@@ -92,6 +107,7 @@ class JwtAutoConfigurationTest {
     void failsWhenJwtSecretIsTooShort() {
         contextRunner
                 .withPropertyValues(
+                        "securitystarter.jwt.enabled=true",
                         "securitystarter.jwt.secret=short-secret",
                         "securitystarter.jwt.expiration=PT1H"
                 )
