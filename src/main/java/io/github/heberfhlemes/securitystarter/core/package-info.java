@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.heberfhlemes.securitystarter.application.token;
-
-import java.time.Instant;
-
 /**
- * Represents a newly generated JWT and its temporal metadata.
+ * Core abstractions for token-based authentication.
  *
- * @param token     the serialized JWT
- * @param issuedAt  the instant the token was issued
- * @param expiresAt the instant the token expires
- * @author Héber F. H. Lemes
- * @since 0.3.0
+ * <p>This package defines the public contracts of the library:
+ * {@link io.github.heberfhlemes.securitystarter.core.TokenProvider},
+ * {@link io.github.heberfhlemes.securitystarter.core.TokenAuthenticationConverter},
+ * and supporting value types.</p>
+ *
+ * <p>Consumers may implement these interfaces to replace
+ * any default behavior provided by the library.</p>
+ *
+ * @since 0.4.0
  */
-public record GeneratedToken(
-        String token,
-        Instant issuedAt,
-        Instant expiresAt
-) {
-}
+package io.github.heberfhlemes.securitystarter.core;

@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.heberfhlemes.securitystarter.application.ports;
+package io.github.heberfhlemes.securitystarter.core;
 
-import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 
@@ -30,7 +29,7 @@ import org.springframework.security.core.Authentication;
  * @since 0.2.0
  */
 @FunctionalInterface
-public interface JwtAuthenticationConverter {
+public interface TokenAuthenticationConverter {
     /**
      * Converts a defined subject into a Spring Security {@link Authentication} instance.
      *

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.heberfhlemes.securitystarter.application.token;
+package io.github.heberfhlemes.securitystarter.core;
 
 import java.time.Instant;
 
@@ -26,12 +26,33 @@ import java.time.Instant;
  * @param valid     whether the token is valid
  * @param subject   the token subject, or {@code null} if invalid
  * @param expiresAt the token expiration instant, or {@code null} if invalid
+ * @param claims    the {@link TokenClaims} holding the extracted claims
  * @author Héber F. H. Lemes
  * @since 0.3.0
  */
 public record TokenValidationResult(
         boolean valid,
         String subject,
-        Instant expiresAt
+        Instant expiresAt,
+        TokenClaims claims
 ) {
+    /**
+     * Creates a {@link TokenValidationResult} marked as invalid, and with
+     * all the other attributes as null or empty.
+     *
+     * @return an invalid {@link TokenValidationResult} object
+     */
+    public static TokenValidationResult buildInvalid() {
+        return new TokenValidationResult(false, null, null, TokenClaims.empty());
+    }
+
+    /**
+     * Returns whether this result represents an authenticated token —
+     * that is, the token is valid and has a non-null subject.
+     *
+     * @return {@code true} if the token is valid and the subject is present
+     */
+    public boolean isAuthenticated() {
+        return valid && subject != null;
+    }
 }

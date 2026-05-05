@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.github.heberfhlemes.securitystarter.core;
+
+import java.time.Instant;
+
 /**
- * Application-layer security services exposed by the {@code security-starter}.
+ * Represents a newly generated JWT and its temporal metadata.
  *
- * <p>This package contains high-level classes used by applications,
- * which provide convenience operations for token-based authentication.</p>
- *
- * <p>These services are optional. Applications may use them, replace them,
- * or implement their own alternatives as needed.</p>
- *
- * @since 0.1.0
+ * @param token     the serialized JWT
+ * @param issuedAt  the instant the token was issued
+ * @param expiresAt the instant the token expires
+ * @author Héber F. H. Lemes
+ * @since 0.3.0
  */
-package io.github.heberfhlemes.securitystarter.application;
+public record GeneratedToken(
+        String token,
+        Instant issuedAt,
+        Instant expiresAt
+) {
+}

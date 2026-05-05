@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.heberfhlemes.securitystarter.application.ports;
-
-import io.github.heberfhlemes.securitystarter.application.token.GeneratedToken;
-import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
+package io.github.heberfhlemes.securitystarter.core;
 
 /**
  * Application-level port for token-based authentication mechanisms.
