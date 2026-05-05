@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.heberfhlemes.securitystarter.config;
+package io.github.heberfhlemes.securitystarter.web;
 
-import io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,20 +33,16 @@ public final class JwtSecurityConfigurer {
 
     /**
      * Applies STATELESS session policy, adds a {@link JwtAuthenticationFilter}
-     * before the default authentication filter, and disable CSRF.
+     * before the default authentication filter and disables CSRF.
      *
-     * @param http a {@link HttpSecurity}
+     * @param http   a {@link HttpSecurity}
      * @param filter a {@link JwtAuthenticationFilter}
      */
     public static void applyTo(HttpSecurity http, JwtAuthenticationFilter filter) {
-        try {
-            http
-                    .csrf(AbstractHttpConfigurer::disable)
-                    .sessionManagement(session ->
-                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to apply JWT security configuration", e);
-        }
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
     }
 }

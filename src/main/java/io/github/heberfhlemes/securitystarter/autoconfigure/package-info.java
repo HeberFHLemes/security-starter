@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 /**
- * Contains auto-configuration classes and extension points for the Security Starter.
- * <p>
- * This package provides:
- * <ul>
- *   <li>JWT authentication auto-configuration</li>
- *   <li>Base JWT security configuration utility class</li>
- * </ul>
+ * Auto-configuration classes for the Security Starter.
  *
- * @since 0.1.0
+ * <p>Registers all library beans conditionally, respecting
+ * any beans already declared by the application.
+ * Auto-configuration is activated when
+ * {@code securitystarter.jwt.enabled=true} is set.</p>
+ *
+ * @since 0.4.0
  */
-package io.github.heberfhlemes.securitystarter.config;
+package io.github.heberfhlemes.securitystarter.autoconfigure;

@@ -1,1 +1,1 @@
-io.github.heberfhlemes.securitystarter.config.JwtAutoConfiguration
+io.github.heberfhlemes.securitystarter.autoconfigure.JwtAutoConfiguration
