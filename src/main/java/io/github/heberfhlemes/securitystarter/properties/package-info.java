@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 /**
- * A package containing configuration properties classes
+ * Configuration properties for the Security Starter.
  *
+ * <p>Properties are bound from the {@code securitystarter.jwt} prefix
+ * and validated at application startup.</p>
+ *
+ * @see io.github.heberfhlemes.securitystarter.autoconfigure.JwtAutoConfiguration
  * @since 0.2.0
  */
 package io.github.heberfhlemes.securitystarter.properties;

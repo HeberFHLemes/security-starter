@@ -32,20 +32,13 @@ import java.time.Duration;
  * </p>
  *
  * <p>
- * <strong>Important:</strong> The secret must be non-empty and at least 32 bytes long
+ * The secret must be non-empty and at least 32 bytes long
  * when encoded in UTF-8, which is the minimum required for HS256 signing.
  * </p>
  *
  * <p>
  * The token expiration can be configured using a {@link Duration} object.
- * By default, it is set to 720,000 milliseconds (12 minutes).
- * </p>
- *
- * <p>
- * This class is used internally by
- * {@link io.github.heberfhlemes.securitystarter.infrastructure.jwt.JwtTokenProvider}
- * (or any {@link io.github.heberfhlemes.securitystarter.application.ports.TokenProvider} implementation)
- * to configure token generation and validation behavior.
+ * By default, it is set to 12 minutes.
  * </p>
  *
  * @author Héber F. H. Lemes
@@ -53,6 +46,14 @@ import java.time.Duration;
  */
 @ConfigurationProperties(prefix = "securitystarter.jwt")
 public class JwtProperties {
+
+    /**
+     * Whether JWT-based authentication is enabled.
+     *
+     * <p>When {@code false} (default), no beans are registered
+     * and the library has no effect on the application.</p>
+     */
+    private boolean enabled = false;
 
     /**
      * Secret key used for signing JWT tokens.
@@ -71,13 +72,21 @@ public class JwtProperties {
      * <p>
      * While not required by the JWT specification
      * (<a href="https://www.rfc-editor.org/rfc/rfc7519#section-4.1.1">
-     *     RFC 7519
+     * RFC 7519
      * </a>),
      * it is strongly recommended in production systems to identify the token issuer and prevent misuse.
      * </p>
      */
     @Nullable
     private String issuer;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public String getSecret() {
         return secret;
@@ -111,6 +120,10 @@ public class JwtProperties {
      */
     @PostConstruct
     public void validate() {
+        if (!enabled) {
+            return;
+        }
+
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("JWT secret must not be empty");
         }
