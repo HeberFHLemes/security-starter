@@ -2,7 +2,7 @@
 
 <!-- TOC -->
 * [Changelog](#changelog)
-  * [[Unreleased]](#unreleased)
+  * [[0.4.0] - 2026-05-05](#040---2026-05-05)
     * [Breaking Changes](#breaking-changes)
     * [Changed](#changed)
     * [Added](#added)
@@ -36,7 +36,7 @@
 
 ---
 
-## [Unreleased]
+## [0.4.0] - 2026-05-05
 
 ### Breaking Changes
 
