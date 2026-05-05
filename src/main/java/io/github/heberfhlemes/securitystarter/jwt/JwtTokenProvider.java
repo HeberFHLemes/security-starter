@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.heberfhlemes.securitystarter.infrastructure.jwt;
+package io.github.heberfhlemes.securitystarter.jwt;
 
-import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-import io.github.heberfhlemes.securitystarter.application.token.GeneratedToken;
-import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
+import io.github.heberfhlemes.securitystarter.core.GeneratedToken;
+import io.github.heberfhlemes.securitystarter.core.TokenProvider;
+import io.github.heberfhlemes.securitystarter.core.TokenValidationResult;
 import io.github.heberfhlemes.securitystarter.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -38,30 +38,14 @@ import java.util.function.Consumer;
  *
  * <p>
  * This implementation is responsible for generating and validating
- * JSON Web Tokens (JWT) using an HMAC signing key derived from
+ * JSON Web Tokens (JWT) using a signing key derived from
  * {@link JwtProperties}.
- * </p>
- *
- * <p>
- * The {@code subject} claim represents the principal identifier
- * (typically a username or user ID).
- * </p>
- *
- * <p>
- * This class is stateless and thread-safe. All configuration is provided
- * at construction time, and no mutable shared state is maintained.
  * </p>
  *
  * <p>
  * A {@link Clock} is used internally for time-based operations,
  * allowing deterministic behavior in tests and full control over
  * token issuance and expiration validation.
- * </p>
- *
- * <p>
- * <strong>Note:</strong> This class does not perform credential authentication.
- * It assumes that the caller has already authenticated the user and
- * only needs to issue or validate tokens for stateless authentication flows.
  * </p>
  *
  * @author Héber F. H. Lemes
@@ -184,7 +168,7 @@ public class JwtTokenProvider implements TokenProvider {
     public TokenValidationResult validate(String token) {
 
         if (token == null || token.isBlank()) {
-            return new TokenValidationResult(false, null, null);
+            return TokenValidationResult.buildInvalid();
         }
 
         try {
@@ -198,22 +182,24 @@ public class JwtTokenProvider implements TokenProvider {
             String expectedIssuer = properties.getIssuer();
             if (expectedIssuer != null && !expectedIssuer.isBlank()) {
                 if (!expectedIssuer.equals(claims.getIssuer())) {
-                    return new TokenValidationResult(false, null, null);
+                    return TokenValidationResult.buildInvalid();
                 }
             }
 
             String subject = claims.getSubject();
 
             if (subject == null || subject.isBlank()) {
-                return new TokenValidationResult(false, null, null);
+                return TokenValidationResult.buildInvalid();
             }
 
             Instant expiresAt = claims.getExpiration().toInstant();
 
-            return new TokenValidationResult(true, subject, expiresAt);
+            JwtTokenClaims tokenClaims = new JwtTokenClaims(claims);
+
+            return new TokenValidationResult(true, subject, expiresAt, tokenClaims);
 
         } catch (JwtException | IllegalArgumentException e) {
-            return new TokenValidationResult(false, null, null);
+            return TokenValidationResult.buildInvalid();
         }
     }
 }
