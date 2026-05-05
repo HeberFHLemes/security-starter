@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 /**
- * Contains servlet filters used by the {@code security-starter} library
- * to integrate with the Spring Security filter chain.
+ * Web layer components for JWT authentication.
  *
- * <p>
- * This package includes stateless authentication filters, such as
- * {@link io.github.heberfhlemes.securitystarter.infrastructure.filters.JwtAuthenticationFilter},
- * which are responsible for extracting and validating authentication tokens
- * from incoming HTTP requests.
- * </p>
+ * <p>Contains the {@link io.github.heberfhlemes.securitystarter.web.JwtAuthenticationFilter},
+ * which extracts and validates JWT tokens from incoming HTTP requests,
+ * and {@link io.github.heberfhlemes.securitystarter.web.JwtSecurityConfigurer},
+ * a utility for applying the minimal stateless security configuration.</p>
  *
- * @since 0.1.0
+ * @since 0.4.0
  */
-@NullMarked
-package io.github.heberfhlemes.securitystarter.infrastructure.filters;
-
-import org.jspecify.annotations.NullMarked;
+package io.github.heberfhlemes.securitystarter.web;

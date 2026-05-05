@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.heberfhlemes.securitystarter.infrastructure.filters;
+package io.github.heberfhlemes.securitystarter.web;
 
-import io.github.heberfhlemes.securitystarter.application.ports.JwtAuthenticationConverter;
-import io.github.heberfhlemes.securitystarter.application.ports.TokenProvider;
-import io.github.heberfhlemes.securitystarter.application.token.TokenValidationResult;
+import io.github.heberfhlemes.securitystarter.core.TokenAuthenticationConverter;
+import io.github.heberfhlemes.securitystarter.core.TokenProvider;
+import io.github.heberfhlemes.securitystarter.core.TokenValidationResult;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -36,7 +37,7 @@ import java.io.IOException;
  * <p>
  * This filter intercepts requests, looks for the {@code Authorization} header with a Bearer token,
  * and, if a valid token is present, delegates the creation of a Spring Security
- * {@link Authentication} instance to a {@link JwtAuthenticationConverter}.
+ * {@link Authentication} instance to a {@link TokenAuthenticationConverter}.
  * </p>
  *
  * <p>The filter itself is responsible only for:</p>
@@ -48,7 +49,7 @@ import java.io.IOException;
  *
  * <p>
  * The resolution of principals, authorities, or user details is delegated to the
- * {@link JwtAuthenticationConverter}, allowing applications to fully control how
+ * {@link TokenAuthenticationConverter}, allowing applications to fully control how
  * authenticated identities are constructed.
  * </p>
  *
@@ -68,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final TokenProvider tokenProvider;
-    private final JwtAuthenticationConverter authenticationConverter;
+    private final TokenAuthenticationConverter authenticationConverter;
 
     /**
      * Constructs a new JwtAuthenticationFilter.
@@ -78,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     public JwtAuthenticationFilter(
             TokenProvider tokenProvider,
-            JwtAuthenticationConverter authenticationConverter) {
+            TokenAuthenticationConverter authenticationConverter) {
         this.tokenProvider = tokenProvider;
         this.authenticationConverter = authenticationConverter;
     }
@@ -100,9 +101,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
@@ -121,20 +122,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             TokenValidationResult result = tokenProvider.validate(token);
 
-            if (!result.valid() || result.subject() == null) {
+            if (!result.isAuthenticated()) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            Authentication authentication =
-                    authenticationConverter.convert(result);
+            Authentication authentication = authenticationConverter.convert(result);
 
             if (authentication != null) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
         } catch (Exception e) {
-            logger.debug("JWT processing failed for request: {}", request.getRequestURI());
+            logger.debug("JWT processing failed for request: {}", request.getRequestURI(), e);
         }
 
         filterChain.doFilter(request, response);
